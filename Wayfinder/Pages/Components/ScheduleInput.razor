@@ -1,0 +1,136 @@
+﻿@using Wayfinder.Data.Models;
+
+
+@namespace Wayfinder.Pages.Components.Reusable
+
+
+@inject IJSRuntime JS
+@inject Wayfinder.Data.WayfinderDbContext Data;
+
+
+
+<div id="@this.ElementID" class="schedule-component-container">
+    <OptionsStaticOne ElementID='@($"{this.ElementID}_schedule_scales")'
+                    Options=@( Enum.GetNames( typeof(ScheduleInput.ZoomStates) )
+                        .Select( v => (v, v) )
+                    )
+                    CurrentOptionsChanged=@( async e => this.ApplyZoom(e) ) />
+    <div class="schedule-component" @ref=this.MainElement></div>
+</div>
+
+
+
+@code {
+    public enum ZoomStates : int {
+        Years, Months, Days, Hours, Minutes
+    }
+
+
+
+    [Parameter, EditorRequired]
+    public string ElementID { get; set; } = null!;
+
+    [Parameter]
+    public ScheduleEntry? InitialSchedule { get; set; }
+
+    ////
+
+    [Parameter]
+    public object? CurrentScheduleRaw {
+        get => this._CurrentScheduleRaw;
+        set {
+            if( this._CurrentScheduleRaw != value ) {
+                this.CurrentScheduleRawChanged.InvokeAsync( value );
+            }
+            this._CurrentScheduleRaw = value;
+        }
+    }
+
+    private object? _CurrentScheduleRaw { get; set; }
+
+    [Parameter]
+    public EventCallback<object?> CurrentScheduleRawChanged { get; set; }
+
+
+    ////
+
+    private bool IsInitialized = false;
+    private bool IsRendered = false;
+
+
+    ////
+
+    private ElementReference MainElement;
+
+
+
+    ////////////////
+
+    protected override async Task OnAfterRenderAsync( bool firstRender ) {
+        if( !this.IsRendered ) {
+            this.IsRendered = true;
+
+            //var d1 = new DateTime( 1970, 1, 1 );
+            //var d2 = DateTime.UtcNow;  //TheDate.ToUniversalTime();
+            //var ts = new TimeSpan( d2.Ticks - d1.Ticks );
+
+            await JS.InvokeVoidAsync(
+                "ZoomScheduleTimeScale",
+                this.MainElement,
+                //ts.TotalMilliseconds,
+                1d / 60d
+            );
+        }
+    }
+
+    protected override void OnParametersSet() {
+        base.OnParametersSet();
+
+        if( !this.IsInitialized ) {
+            this.IsInitialized = true;
+
+            this.CurrentScheduleRaw = this.InitialSchedule;
+        }
+    }
+
+    ////
+
+    private async void ApplyZoom( string which ) {
+        double zoomScale = 1d;
+
+        switch( which ) {
+        case "Years":
+            zoomScale /= 60d;
+            zoomScale /= 60d;
+            zoomScale /= 24d;
+            zoomScale /= 10d;//30d;
+            //zoomScale /= 365d;
+            break;
+        case "Months":
+            zoomScale /= 60d;
+            zoomScale /= 60d;
+            zoomScale /= 24d;
+            //zoomScale /= 30d;
+            break;
+        case "Days":
+            zoomScale /= 60d;
+            zoomScale /= 50d;//60d
+            //zoomScale /= 24d;
+            break;
+        case "Hours":
+            zoomScale /= 60d;
+            zoomScale /= 2.4d;//60d
+            break;
+        case "Minutes":
+        default:
+            zoomScale /= 2.4d;//60d;
+            break;
+        }
+
+        await JS.InvokeVoidAsync(
+            "ZoomScheduleTimeScale",
+            this.MainElement,
+            zoomScale
+        );
+    }
+}

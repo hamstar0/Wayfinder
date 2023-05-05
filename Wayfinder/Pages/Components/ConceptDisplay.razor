@@ -1,0 +1,30 @@
+﻿@using Wayfinder.Data.Models;
+
+
+@namespace Wayfinder.Pages.Components.Reusable
+
+
+
+<span>@this.Concept.TermA.ToString()</span>
+is
+<span>@this.Concept.TermRel.ToString()</span>
+for
+<span>@this.Concept.TermB.ToString()</span>
+@if( this.Concept.IsFact ) {
+    if( this.Concept.IsImpossible ) {
+        <span>is an impossibility</span>
+    }
+} else {
+    if( this.Concept.IsImpossible ) {
+        <span>may be impossible</span>
+    } else {
+        <span>is an idea</span>
+    }
+}
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public ConceptEntry Concept { get; set; } = null!;
+}

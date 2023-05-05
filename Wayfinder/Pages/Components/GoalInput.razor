@@ -1,0 +1,105 @@
+﻿@namespace Wayfinder.Pages.Components.Reusable
+@using Wayfinder.Data.Models;
+
+
+@inject Wayfinder.Data.WayfinderDbContext Data;
+
+
+
+<div style="border:1px; border-style:solid;">
+    <OptionsDynamic ElementID='@($"{this.ElementID}_goal")'
+            InlineLabel="Enter goal name"
+            InitialValue=@this.CurrentGoalRaw
+            IsPickerOnly=false
+            GetOptionsBySearch=this.GetGoalEntries_Async
+            OnSubmitNewOptionIf=this.SubmitNewGoal_Async
+            @bind-CurrentOptionSelection=this.CurrentGoalRaw></OptionsDynamic>
+    @*<input type="text"
+            placeholder="Enter goal name"
+            @onchange="@( (ChangeEventArgs e) => this.OnChangeGoalName(e) )" />
+    <button type="button"
+            class="input-group-btn btn"
+            disabled=@(this.CanSubmitGoal() == false)
+            @onclick=@(() => this.SubmitNewGoal_Async())>
+        Create
+    </button>*@
+</div>
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public string ElementID { get; set; } = null!;
+
+    //[Parameter]
+    //public EventCallback OnChanged { get; set; }
+
+    [Parameter, EditorRequired]
+    public object? ConceptRaw {
+        get => this._ConceptRaw;
+        set {
+            if( this._ConceptRaw != value ) {
+                this.CurrentGoalRaw = null;
+            }
+            this._ConceptRaw = value;
+        }
+    }
+
+    private object? _ConceptRaw;
+
+    [Parameter]
+    public EventCallback<object?> ConceptRawChanged { get; set; }
+
+    ////
+
+    [Parameter]
+    public object? CurrentGoalRaw {
+        get => this._CurrentGoalRaw;
+        set {
+            if( this._CurrentGoalRaw != value ) {
+                this.CurrentGoalRawChanged.InvokeAsync( value );
+            }
+            this._CurrentGoalRaw = value;
+        }
+    }
+
+    private object? _CurrentGoalRaw { get; set; }
+
+    [Parameter]
+    public EventCallback<object?> CurrentGoalRawChanged { get; set; }
+
+
+
+    ////////////////
+
+    public async Task<IList<object>> GetGoalEntries_Async( string search ) {
+        return await Task.Run<IList<object>>(
+            () => this.Data.Goals
+                .Where( g => g.Name.Contains(search) )
+                .Cast<object>()
+                .ToList()
+        );
+    }
+
+    public async Task<(bool, object?)> SubmitNewGoal_Async( string newGoalName ) {
+        if( this.ConceptRaw is null || newGoalName == "" ) {
+            return (false, null);
+        }
+
+        var newGoal = new GoalEntry {
+                Name = newGoalName,
+                Needed = this.ConceptRaw as ConceptEntry
+            };
+
+        this.Data.Goals.Add( newGoal );
+
+        int rowsChanged = await this.Data.SaveChangesAsync();
+        bool success = rowsChanged == 1;
+
+        if( success ) {
+            this.CurrentGoalRaw = newGoal;
+        }
+
+        return (success, newGoal);
+    }
+}

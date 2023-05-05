@@ -1,0 +1,119 @@
+﻿@using Microsoft.Data.SqlClient;
+@using Microsoft.EntityFrameworkCore;
+@using Wayfinder.Data.Models;
+
+
+@namespace Wayfinder.Pages.Components.Reusable
+
+
+@inject Wayfinder.Data.WayfinderDbContext Data;
+@inject Wayfinder.Services.WayfinderLogic Logic;
+
+
+
+<div style="border:1px; border-style:solid;">
+    <OptionsDynamic ElementID='@($"{this.ElementID}_term")'
+            InlineLabel="Enter term"
+            InitialValue=@(this.InitialTermChoice)
+            IsPickerOnly=false
+            GetOptionsBySearch=this.GetTermEntries_Async
+            CanSubmitNewOption=this.CanSubmitNewTerm
+            OnSubmitNewOptionIf=this.SubmitNewTerm_Async
+            @bind-CurrentOptionSelection=this.CurrentTermSelectionRaw></OptionsDynamic>
+</div>
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public string ElementID { get; set; } = null!;
+
+    [Parameter]
+    public TermEntry? InitialTermChoice { get; set; }
+
+    ////
+
+    [Parameter]
+    public object? CurrentTermSelectionRaw {
+        get => this._CurrentTermSelectionRaw;
+        set {
+            if( this._CurrentTermSelectionRaw != value ) {
+                this.CurrentTermSelectionRawChanged.InvokeAsync( value );
+            }
+            this._CurrentTermSelectionRaw = value;
+        }
+    }
+
+    private object? _CurrentTermSelectionRaw { get; set; }
+
+    [Parameter]
+    public EventCallback<object?> CurrentTermSelectionRawChanged { get; set; }
+
+
+    ////
+
+    private bool IsInitialized = false;
+
+
+
+    ////////////////
+
+    protected override void OnParametersSet() {
+        base.OnParametersSet();
+
+        if( !this.IsInitialized ) {
+            this.IsInitialized = true;
+
+            this.CurrentTermSelectionRaw = this.InitialTermChoice;
+        }
+    }
+
+    ////////////////
+
+    public async Task<IList<object>> GetTermEntries_Async( object search ) {
+        string searchStr = (string)search;
+
+        return await Task.Run( () => this.Data.Terms
+            .Where( t => t.Name.Contains( searchStr ) )
+            //.Where( t => EF.Functions.Like( t.Name, $"%{searchStr}%" ) )
+            .Cast<object>()
+            .ToList()
+        );
+    }
+
+    public bool CanSubmitNewTerm( string value, object? currentOption ) {
+        if( value == "" ) {
+            return false;
+        }
+
+        return currentOption is null
+            ? true
+            : value != currentOption.ToString();
+    }
+
+
+    public async Task<(bool success, object entity)> SubmitNewTerm_Async( string newOptionRaw ) {
+        var newTerm = new TermEntry {
+            Name = newOptionRaw,
+            ContextId = this.Logic.AnythingTerm.Id
+        };
+
+        int rowsChanged;
+        bool success;
+
+        try {
+            this.Data.Terms.Add( newTerm );
+
+            rowsChanged = await this.Data.SaveChangesAsync();
+            success = rowsChanged == 1;
+
+            if( success ) {
+                this.CurrentTermSelectionRaw = newTerm;
+            }
+        } catch( DbUpdateException ) {
+            success = false;
+        }
+
+        return (success, newTerm);
+    }
+}

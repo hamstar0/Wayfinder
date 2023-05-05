@@ -1,0 +1,114 @@
+v1
+-	Implement inquisitor prompting engine
+-	Implement/refine main interface
+-	Implement components
+	-	Inquisitor interface
+	-	Plan input/picker
+	-	@Test
+	-	Concept picker
+	-	Implement term parent picker
+	-	@Test
+	-	Add context for concept input (goal, plan (manual), inquisition (auto))
+		-	Implement switching for component activation (clicking on a component)
+		-	Implement switching for context + UI update trigger
+		-	Define concepts for each context
+	-	Finish goal input
+	-	Finish concept input
+	-	Schedule input (for current concept)
+		-	Implement save/cancel buttons
+		-	Implement translation of position value to time value (based on current scale)
+		-	Add segment draw script
+		-	Add save/cancel + scale buttons
+		-	Implement time shift
+
+
+		-	Implement time zoom
+		-	@Test tick generation
+		-	Implement tick styles + default zoom
+		-	Implement time units via zoom
+	-	Fix term search selecting
+	-	Fix term searching
+	-	Fix term submitting (prevent duplicates)
+	-	@Test
+		-	Test searching terms
+		-	Test submitting terms
+	-	Wire up components on main interface
+	-	Goal input/picker
+	-	Concept input
+	-	Term input/picker
+-	Define main interface
+-	@Test
+-	Add entities to Db class
+-	Define basic components
+	-	Input/option picker
+	-	Button Options
+	-	Panel
+-	Define data structures
+	-	Concept
+	-	Term
+	-	Event
+	-	Event Schedule
+	-	Plan steps
+	-	Plans
+	-	Goals
+-	Define project (Server Blazor)
+
+
+
+Main interface
+-	Current goal input/picker (for user's itinerary)
+-	Current plan input/picker (for goal)
+-	Current term input/picker ("smart" selection)
+-	"Is term like/unalike other term?"
+
+
+
+Data
+-	Top-level (to-do)
+	-	Purview: Set of facts user accepts as a model of understanding
+		-	Purview ID
+		-	Creator's User ID
+		-	Name
+		-	Parent ID (Purview ID; nullable)
+	-	Itinerary: Set of plans pertaining to a given model of understanding (purview)
+		-	User ID
+		-	Purview ID
+-	User-level
+	-	Goal
+		-	Goal ID
+		-	Concept ID ('is fact' = accomplished)
+		-	Name
+	-	Plan: A set of steps to accomplish a given goal
+		-	Plan ID
+		//-	Itinerary ID (nullable)
+		-	Goal ID
+		-	Name
+	-	Plan Step
+		-	Plan ID (many-to-one)
+		-	Needed Concept ID ('is fact' = need met)
+		-	Fulfills Concept ID ('is fact' = fulfilled)
+		-	Event
+-	Elementary-level
+	-	Event Schedule
+		-	Schedule ID
+	-	Event
+		-	Schedule ID (many-to-one)
+		-	Start Timestamp
+		-	End Timestamp
+		-	Start GPS Coordinate
+		-	End GPS Coordinate
+		-	Radius (meters)
+	-	Term
+		-	Term ID
+		-	Name
+		-	Context (Term ID; nullable)
+	-	Concept
+		-	Concept ID
+		//-	Purview ID
+		-	Term ID (A)
+		-	Term ID (B)
+		-	Term ID (Relationship)
+		-	Event Schedule ID: When/where this concept applies
+		-	Is fact
+		-	Is impossible
+

@@ -1,0 +1,27 @@
+﻿@namespace Wayfinder.Pages.Components.Reusable
+
+
+
+<div class='@(this.ElementClasses+" text-center panel panel-primary")' style='@this.ElementStyles'>
+  <div class="panel-heading">@this.Name</div>
+  <div class="panel-body">@this.ChildContent</div>
+</div>
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = null!;
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = null!;
+    
+
+    ////
+
+    [Parameter]
+    public string? ElementClasses { get; set; } = null;
+
+    [Parameter]
+    public string? ElementStyles { get; set; } = null;
+}

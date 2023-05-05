@@ -1,0 +1,29 @@
+﻿@page "/"
+
+@using Wayfinder.Pages.Components.Reusable
+
+
+
+<PageTitle>Wayfinder</PageTitle>
+
+@*<GoalInput ElementID="main_goal_input"
+    @bind-CurrentGoalRaw=this.CurrentGoalRaw
+    @bind-ConceptRaw=this.CurrentConceptRaw />*@
+
+<p />
+
+@*<ConceptInput ElementID="main_concept_input"
+    @bind-CurrentConceptRaw=this.CurrentConceptRaw />*@
+
+@*<ScheduleInput ElementID=""></ScheduleInput>*@
+
+@*<PlanStepsInput ElementID=""></PlanStepsInput>*@
+
+<ScheduleInput ElementID="test" />
+
+
+
+@code {
+    private object? CurrentGoalRaw { get; set; }
+    private object? CurrentConceptRaw { get; set; }
+}

@@ -1,0 +1,186 @@
+﻿@inject IJSRuntime JS
+
+
+@namespace Wayfinder.Pages.Components.Reusable
+
+
+
+<div class="@this.ElementClasses" style="@this.ElementStyles">
+    @if( this.IsPickerOnly && this.Label is not null ) {
+        <label for="@this.ElementID">@this.Label</label>
+    }
+
+    <div class="input-group">
+        @if( !this.IsPickerOnly ) {
+            <button type="button"
+                    class="input-group-btn btn"
+                    disabled=@( this.CanSubmitNewOption(this.InputValue, this.CurrentOptionSelection) == false )
+                    @onclick=@( this.SubmitNewOption_Async )>
+                @(this.Label is not null ? this.Label : "Create")
+            </button>
+        }
+
+        <input type="text"
+               class="form-control"
+               style="border-left:none;"
+               placeholder='@(this.InlineLabel ?? "")'
+               @bind-value=@this.InputValue
+               @oninput=@( async e => await this.ChangeInputValue_Async(e.Value as string ?? "") ) />
+
+        <div class="input-group-btn dropdown" name="@this.ElementID">
+            <button type="button"
+                    class="btn dropdown-toggle"
+                    style="background-color:white; border-right:none;"
+                    data-bs-toggle="dropdown">
+                <span class="caret"></span>
+            </button>
+
+            <ul id="@this.DropdownElementID" class="dropdown-menu">
+                @foreach( object entry in this.CurrentSearchOptions ) {
+                    <li class="dropdown-item" @onclick=@( async () => await this.SelectSearchOption_Async(entry) )>
+                        @entry.ToString()
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public bool IsPickerOnly { get; set; }
+
+    ////
+
+    [Parameter, EditorRequired]
+    public Func<string, Task<IList<object>>> GetOptionsBySearch { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public Func<string, object?, bool> CanSubmitNewOption { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public Func<string, Task<(bool Success, object? Entity)>> OnSubmitNewOptionIf { get; set; } = null!;
+
+    ////
+
+    [Parameter, EditorRequired]
+    public string ElementID { get; set; } = null!;
+
+    private string DropdownElementID => $"{this.ElementID}_dropdown";
+
+    ////
+
+    [Parameter]
+    public string? ElementClasses { get; set; } = null;
+
+    [Parameter]
+    public string? ElementStyles { get; set; } = null;
+
+    [Parameter]
+    public string? Label { get; set; } = null;
+
+    [Parameter]
+    public string? InlineLabel { get; set; } = null;
+
+    [Parameter]
+    public object? InitialValue { get; set; } = null;
+
+    ////
+
+    private string InputValue {
+        get => this._InputValue;
+        set {
+            if( this._InputValue != value ) {
+                this.CurrentOptionSelection = null;
+            }
+            this._InputValue = value;
+        }
+    }
+
+    private string _InputValue = "";
+
+    ////
+
+    [Parameter]
+    public object? CurrentOptionSelection {
+        get => this._CurrentOptionSelection;
+        set {
+            if( this._CurrentOptionSelection != value ) {
+                this.CurrentOptionSelectionChanged.InvokeAsync( value );
+            }
+            this._CurrentOptionSelection = value;
+        }
+    }
+
+    private object? _CurrentOptionSelection { get; set; }
+
+    [Parameter]
+    public EventCallback<object?> CurrentOptionSelectionChanged { get; set; }
+
+    ////
+
+    private IList<object> CurrentSearchOptions = new List<object>();
+
+
+    ////
+
+    private bool IsInitialized = false;
+
+
+
+    ////////////////
+
+    protected override void OnParametersSet() {
+        base.OnParametersSet();
+
+        if( !this.IsInitialized ) {
+            this.IsInitialized = true;
+
+            this.InputValue = this.InitialValue?.ToString() ?? "";
+            this.CurrentOptionSelection = this.InitialValue;
+            this.CurrentSearchOptions.Clear();
+        }
+    }
+
+    ////
+
+    private async Task ChangeInputValue_Async( string value ) {
+        if( this.InputValue?.ToString() == value ) {
+            return;
+        }
+
+        this.InputValue = value;
+
+        if( !string.IsNullOrEmpty(value) ) {
+            this.CurrentSearchOptions = await this.GetOptionsBySearch( value );
+        } else {
+            this.CurrentSearchOptions.Clear();
+        }
+    }
+
+
+    ////
+
+    private async Task SubmitNewOption_Async() {
+        if( !this.CanSubmitNewOption( this.InputValue, this.CurrentOptionSelection ) ) {
+            throw new Exception( $"Could not submit new option for {this.ElementID}." );
+        }
+
+        (bool success, object? ent) = await this.OnSubmitNewOptionIf( this.InputValue );
+
+        if( success ) {
+            this.CurrentOptionSelection = ent;
+        } else {
+            this.CurrentOptionSelection = null;
+
+            await JS.InvokeVoidAsync( "CustomAlert", $"Failed option input for {this.ElementID}" );
+        }
+    }
+
+    private async Task SelectSearchOption_Async( object? option ) {
+        this.InputValue = option?.ToString() ?? "";
+        this.CurrentOptionSelection = option;
+    }
+}

@@ -1,0 +1,50 @@
+﻿@namespace Wayfinder.Pages.Components.Reusable
+
+
+
+<div class="btn-group">
+    @if( this.Options is not null ) {
+        @foreach( (string value, string label) in this.Options ) {
+            <input type="radio"
+                    id='@($"{this.ElementID}_{value}_any")'
+                    name='@($"{this.ElementID}_any")'
+                    class="btn btn-primary"
+                    @onchange=@( async e => this.OnChangedOne(value) )>
+            <label for='@($"{this.ElementID}_{value}_any")'>@label</label>
+        }
+    }
+</div>
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public string ElementID { get; set; } = null!;
+
+
+    ////
+
+    [Parameter]
+    public IEnumerable<(string Value, string Label)>? Options { get; set; } = null;
+
+
+    ////
+
+    [Parameter]
+    public string CurrentOptions { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<string> CurrentOptionsChanged { get; set; }
+
+
+
+    ////////////////
+
+    private async void OnChangedOne( string choice ) {
+        if( this.CurrentOptions != choice ) {
+            await this.CurrentOptionsChanged.InvokeAsync( choice );
+        }
+
+        this.CurrentOptions = choice;
+    }
+}

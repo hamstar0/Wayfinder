@@ -1,0 +1,42 @@
+﻿.schedule-component {
+    position: relative;
+    border: 1px solid black;
+    height: 128px;
+    overflow: hidden;
+}
+
+.schedule-component-unit {
+    position: absolute;
+    display: block;
+    /*display: inline-block;*/
+}
+
+.schedule-component-unit-year {
+    border: 1px solid green;
+    height: 128px;
+    top: 0px;
+}
+
+.schedule-component-unit-month {
+    border: 1px solid blue;
+    height: 104px;
+    top: 24px;
+}
+
+.schedule-component-unit-day {
+    border: 1px solid yellow;
+    height: 80px;
+    top: 48px;
+}
+
+.schedule-component-unit-hour {
+    border: 1px solid red;
+    height: 56px;
+    top: 72px;
+}
+
+.schedule-component-unit-minute {
+    border: 1px solid purple;
+    height: 32px;
+    top: 96px;
+}

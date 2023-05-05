@@ -1,0 +1,56 @@
+﻿@namespace Wayfinder.Pages.Components.Reusable
+
+
+
+<div class="btn-group">
+    @if( this.Options is not null ) {
+        @foreach( (string value, string label) in this.Options ) {
+            <input type="checkbox"
+                    id='@($"{this.ElementID}_{value}_any")'
+                    name='@($"{this.ElementID}_any")'
+                    class="btn btn-secondary"
+                    @onchange=@( e => this.OnChanged(value, (bool)e.Value) )>
+            <label for='@($"{this.ElementID}_{value}_any")'>@label</label>
+        }
+    }
+</div>
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public string ElementID { get; set; } = null!;
+
+
+    ////
+
+    [Parameter]
+    public IEnumerable<(string Value, string Label)>? Options { get; set; } = null;
+
+
+    ////
+
+    [Parameter]
+    public ISet<string> CurrentOptions { get; set; } = new HashSet<string>();
+
+    [Parameter]
+    public EventCallback<ISet<string>> CurrentOptionsChanged { get; set; }
+
+
+
+    ////////////////
+
+    private void OnChanged( string choice, bool value ) {
+        if( value ) {
+            if( !this.CurrentOptions.Contains( choice ) ) {
+                this.CurrentOptions.Add( choice );
+                this.CurrentOptionsChanged.InvokeAsync( this.CurrentOptions );
+            }
+        } else {
+            if( this.CurrentOptions.Contains(choice) ) {
+                this.CurrentOptions.Remove( choice );
+                this.CurrentOptionsChanged.InvokeAsync( this.CurrentOptions );
+            }
+        }
+    }
+}

@@ -1,0 +1,199 @@
+﻿@using Wayfinder.Data.Models;
+
+
+@namespace Wayfinder.Pages.Components.Reusable
+
+
+@inject IJSRuntime JS
+@inject Wayfinder.Data.WayfinderDbContext Data;
+
+
+
+<div style="border:1px; border-style:solid;">
+    <TermInput ElementID=@this.TermAElementID
+            InitialTermChoice=@this.InitialConcept?.TermA
+            @bind-CurrentTermSelectionRaw=this.TermARaw />
+    is
+    <TermInput ElementID=@this.TermRelElementID
+            InitialTermChoice=@this.InitialConcept?.TermRel
+            @bind-CurrentTermSelectionRaw=this.TermBRaw />
+    for
+    <TermInput ElementID=@this.TermBElementID
+            InitialTermChoice=@this.InitialConcept?.TermB
+            @bind-CurrentTermSelectionRaw=this.TermRelRaw />
+
+    <label for="@this.IsFactElementID">Is fact?</label>
+    <input type="checkbox"
+            name="@this.IsFactElementID"
+            @bind-value=this.IsFact />
+
+    <label for="@this.IsImpossibleElementID">Is impossible?</label>
+    <input type="checkbox"
+            name="@this.IsImpossibleElementID"
+            @bind-value=this.IsImpossible />
+
+    <button type="button"
+            class="input-group-btn btn"
+            disabled=@(this.CanSubmitNewConcept() == false)
+            @onclick=@(this.SubmitNewConcept_Async)>
+        Create
+    </button>
+</div>
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public string ElementID { get; set; } = null!;
+
+    [Parameter]
+    public ConceptEntry? InitialConcept { get; set; }
+
+
+    private string TermAElementID => $"{this.ElementID}_term_a";
+    private string TermBElementID => $"{this.ElementID}_term_b";
+    private string TermRelElementID => $"{this.ElementID}_term_rel";
+    private string IsFactElementID => $"{this.ElementID}_isfact";
+    private string IsImpossibleElementID => $"{this.ElementID}_isimpossible";
+
+
+
+    ////
+
+    public object? TermARaw {
+        get => this._TermARaw;
+        set {
+            if( this._TermARaw != value ) {
+                this.CurrentConceptRaw = null;
+            }
+            this._TermARaw = value;
+        }
+    }
+
+    public object? TermBRaw {
+        get => this._TermBRaw;
+        set {
+            if( this._TermBRaw != value ) {
+                this.CurrentConceptRaw = null;
+            }
+            this._TermBRaw = value;
+        }
+    }
+
+    public object? TermRelRaw {
+        get => this._TermRelRaw;
+        set {
+            if( this._TermRelRaw != value ) {
+                this.CurrentConceptRaw = null;
+            }
+            this._TermRelRaw = value;
+        }
+    }
+
+    public bool IsFact {
+        get => this._IsFact;
+        set {
+            if( this._IsFact != value ) {
+                this.CurrentConceptRaw = null;
+            }
+            this._IsFact = value;
+        }
+    }
+
+    public bool IsImpossible {
+        get => this._IsImpossible;
+        set {
+            if( this._IsImpossible != value ) {
+                this.CurrentConceptRaw = null;
+            }
+            this._IsImpossible = value;
+        }
+    }
+
+    private object? _TermARaw;
+    private object? _TermBRaw;
+    private object? _TermRelRaw;
+    private bool _IsFact;
+    private bool _IsImpossible;
+
+    ////
+
+    [Parameter]
+    public object? CurrentConceptRaw {
+        get => this._CurrentConceptRaw;
+        set {
+            if( this._CurrentConceptRaw != value ) {
+                this.CurrentConceptRawChanged.InvokeAsync( value );
+            }
+            this._CurrentConceptRaw = value;
+        }
+    }
+
+    private object? _CurrentConceptRaw { get; set; }
+
+    [Parameter]
+    public EventCallback<object?> CurrentConceptRawChanged { get; set; }
+
+
+    ////
+
+    private bool IsInitialized = false;
+
+
+
+    ////////////////
+
+    protected override void OnParametersSet() {
+        base.OnParametersSet();
+        
+        if( !this.IsInitialized ) {
+            this.IsInitialized = true;
+
+            this.TermARaw = this.InitialConcept?.TermA;
+            this.TermBRaw = this.InitialConcept?.TermB;
+            this.TermRelRaw = this.InitialConcept?.TermRel;
+            this.IsFact = this.InitialConcept?.IsFact ?? false;
+            this.IsImpossible = this.InitialConcept?.IsImpossible ?? false;
+
+            this.CurrentConceptRaw = this.InitialConcept;
+        }
+    }
+
+    ////
+
+    public bool CanSubmitNewConcept() {
+//Console.WriteLine( $"{this.CurrentConceptRaw is null} {this.TermARaw is not null} {this.TermBRaw is not null} {this.TermRelRaw is not null}" );
+        return this.CurrentConceptRaw is null &&
+            this.TermARaw is not null &&
+            this.TermBRaw is not null &&
+            this.TermRelRaw is not null;
+    }
+
+    ////
+
+    public async Task SubmitNewConcept_Async() {
+        if( !this.CanSubmitNewConcept() ) {
+            throw new Exception( $"Could not submit new Concept for {this.ElementID}." );
+        }
+
+        var newConcept = new ConceptEntry {
+            TermA = this.TermARaw as TermEntry,
+            TermB = this.TermBRaw as TermEntry,
+            TermRel = this.TermRelRaw as TermEntry,
+            IsFact = this.IsFact,
+            IsImpossible = this.IsImpossible
+        };
+
+        this.Data.Concepts.Add( newConcept );
+
+        int rowsChanged = await this.Data.SaveChangesAsync();
+
+        if( rowsChanged == 1 ) {
+            this.CurrentConceptRaw = newConcept;
+        } else {
+            this.CurrentConceptRaw = null;
+
+            await JS.InvokeVoidAsync( "CustomAlert", $"Failed Concept input for {this.ElementID}" );
+        }
+    }
+}
