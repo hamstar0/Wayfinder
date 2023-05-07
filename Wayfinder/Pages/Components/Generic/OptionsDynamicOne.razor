@@ -1,7 +1,7 @@
-﻿@inject IJSRuntime JS
+﻿@inject IJSRuntime JS;
 
 
-@namespace Wayfinder.Pages.Components.Reusable
+@namespace Wayfinder.Pages.Components.Generic
 
 
 
@@ -164,7 +164,7 @@
     ////
 
     private async Task SubmitNewOption_Async() {
-        if( !this.CanSubmitNewOption( this.InputValue, this.CurrentOptionSelection ) ) {
+        if( !this.CanSubmitNewOption(this.InputValue, this.CurrentOptionSelection) ) {
             throw new Exception( $"Could not submit new option for {this.ElementID}." );
         }
 

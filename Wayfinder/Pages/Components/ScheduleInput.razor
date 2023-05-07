@@ -1,20 +1,23 @@
 ﻿@using Wayfinder.Data.Models;
 
 
-@namespace Wayfinder.Pages.Components.Reusable
+@namespace Wayfinder.Pages.Components.Generic
 
 
-@inject IJSRuntime JS
+@inject IJSRuntime JS;
 @inject Wayfinder.Data.WayfinderDbContext Data;
 
 
 
 <div id="@this.ElementID" class="schedule-component-container">
-    <OptionsStaticOne ElementID='@($"{this.ElementID}_schedule_scales")'
-                    Options=@( Enum.GetNames( typeof(ScheduleInput.ZoomStates) )
-                        .Select( v => (v, v) )
-                    )
-                    CurrentOptionsChanged=@( async e => this.ApplyZoom(e) ) />
+    <div>
+        <OptionsStaticOne ElementID='@($"{this.ElementID}_schedule_scales")'
+                        Options=@( Enum.GetNames( typeof(ScheduleInput.ZoomStates) )
+                            .Select( v => (v, v) )
+                        )
+                        CurrentOptionsChanged=@( async e => this.ApplyZoom(e) ) />
+        <ToggleSwitch Label="Draw Time Segments" />
+    </div>
     <div class="schedule-component" @ref=this.MainElement></div>
 </div>
 

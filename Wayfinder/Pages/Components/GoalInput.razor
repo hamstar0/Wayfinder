@@ -1,4 +1,4 @@
-﻿@namespace Wayfinder.Pages.Components.Reusable
+﻿@namespace Wayfinder.Pages.Components.Generic
 @using Wayfinder.Data.Models;
 
 
@@ -7,13 +7,14 @@
 
 
 <div style="border:1px; border-style:solid;">
-    <OptionsDynamic ElementID='@($"{this.ElementID}_goal")'
+    <OptionsDynamicOne ElementID='@($"{this.ElementID}_goal")'
             InlineLabel="Enter goal name"
             InitialValue=@this.CurrentGoalRaw
             IsPickerOnly=false
             GetOptionsBySearch=this.GetGoalEntries_Async
+            CanSubmitNewOption=this.CanSubmitNewGoal
             OnSubmitNewOptionIf=this.SubmitNewGoal_Async
-            @bind-CurrentOptionSelection=this.CurrentGoalRaw></OptionsDynamic>
+            @bind-CurrentOptionSelection=this.CurrentGoalRaw></OptionsDynamicOne>
     @*<input type="text"
             placeholder="Enter goal name"
             @onchange="@( (ChangeEventArgs e) => this.OnChangeGoalName(e) )" />
@@ -81,8 +82,24 @@
         );
     }
 
+
+    public bool CanSubmitNewGoal( string newOption, object? currentOption ) {
+        if( this.ConceptRaw is null ) {
+            return false;
+        }
+
+        if( newOption == "" ) {
+            return false;
+        }
+
+        return currentOption is null
+            ? true
+            : newOption != currentOption.ToString();
+    }
+
+
     public async Task<(bool, object?)> SubmitNewGoal_Async( string newGoalName ) {
-        if( this.ConceptRaw is null || newGoalName == "" ) {
+        if( this.CanSubmitNewGoal(newGoalName, this.CurrentGoalRaw) ) {
             return (false, null);
         }
 

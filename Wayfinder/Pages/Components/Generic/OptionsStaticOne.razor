@@ -1,8 +1,8 @@
-﻿@namespace Wayfinder.Pages.Components.Reusable
+﻿@namespace Wayfinder.Pages.Components.Generic
 
 
 
-<div class="btn-group">
+<div class="btn-group" style="display: inline-block;">
     @if( this.Options is not null ) {
         @foreach( (string value, string label) in this.Options ) {
             <input type="radio"

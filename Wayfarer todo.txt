@@ -1,4 +1,7 @@
 v1
+-	Completion
+	-	Schedule input
+		-	Implement time shift (click + drag)
 -	Implement inquisitor prompting engine
 -	Implement/refine main interface
 -	Implement components
@@ -16,10 +19,7 @@ v1
 	-	Finish concept input
 	-	Schedule input (for current concept)
 		-	Implement save/cancel buttons
-		-	Implement translation of position value to time value (based on current scale)
-		-	Add segment draw script
-		-	Add save/cancel + scale buttons
-		-	Implement time shift
+		-	Add segment drawing (mode toggle button)
 
 
 		-	Implement time zoom

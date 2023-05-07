@@ -1,0 +1,18 @@
+﻿@namespace Wayfinder.Pages.Components.Generic
+
+
+
+<label>
+    <div style="display: inline-block;">@this.Label</div>
+    <div class="my-toggle-switch">
+        <input type="checkbox" />
+        <span class="my-toggle-switch-slider"></span>
+    </div>
+</label>
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = null!;
+}

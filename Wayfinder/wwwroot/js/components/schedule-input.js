@@ -12,7 +12,7 @@
  * @param {HTMLElement} componentElementId - Shedule container element
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function ZoomScheduleTimeScale(componentElement, pixelsPerSecond) {
+function ZoomScheduleTimeScale( componentElement, pixelsPerSecond ) {
     let datePosition = componentElement.getAttribute( "date-position" );
     datePosition = datePosition !== null
         ? typeof datePosition === 'string' || datePosition instanceof String
@@ -35,7 +35,7 @@ function ZoomScheduleTimeScale(componentElement, pixelsPerSecond) {
  * @param {numer} startDateMilliseconds - Start date
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function ZoomScheduleTimeScaleWhen(componentElement, startDateMilliseconds, pixelsPerSecond) {
+function ZoomScheduleTimeScaleWhen( componentElement, startDateMilliseconds, pixelsPerSecond ) {
     componentElement.innerHTML = "";
 
     //
