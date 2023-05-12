@@ -11,14 +11,15 @@
 
 <div id="@this.ElementID" class="schedule-component-container">
     <div>
-        <OptionsStaticOne ElementID='@($"{this.ElementID}_schedule_scales")'
-                        Options=@( Enum.GetNames( typeof(ScheduleInput.ZoomStates) )
-                            .Select( v => (v, v) )
-                        )
-                        CurrentOptionsChanged=@( async e => this.ApplyZoom(e) ) />
-        <ToggleSwitch Label="Draw Time Segments" />
+        <OptionsStaticOne ElementID='@($"{this.ElementID}_scale_controls")'
+                Options=@( Enum.GetNames( typeof(ScheduleInput.ZoomStates) )
+                    .Select( v => (v, v) )
+                )
+                CurrentOptionsChanged=@( async e => this.ApplyZoom(e) ) />
+        <ToggleSwitch ElementID='@($"{this.ElementID}_draw_mode_toggle")' Label="Draw Time Segments" />
     </div>
-    <div class="schedule-component" @ref=this.MainElement></div>
+    <div class="schedule-component" @ref=this.TimelineElement id ='@($"{this.ElementID}_timeline")'>
+    </div>
 </div>
 
 
@@ -57,13 +58,13 @@
 
     ////
 
-    private bool IsInitialized = false;
-    private bool IsRendered = false;
+    private ElementReference TimelineElement;
 
 
     ////
-
-    private ElementReference MainElement;
+    
+    private bool IsInitialized = false;
+    private bool IsRendered = false;
 
 
 
@@ -78,8 +79,8 @@
             //var ts = new TimeSpan( d2.Ticks - d1.Ticks );
 
             await JS.InvokeVoidAsync(
-                "ZoomScheduleTimeScale",
-                this.MainElement,
+                "InitializeTimelineElement",
+                this.ElementID,
                 //ts.TotalMilliseconds,
                 1d / 60d
             );
@@ -132,7 +133,7 @@
 
         await JS.InvokeVoidAsync(
             "ZoomScheduleTimeScale",
-            this.MainElement,
+            this.TimelineElement,
             zoomScale
         );
     }

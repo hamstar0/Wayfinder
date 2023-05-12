@@ -1,19 +1,42 @@
-/*{
-    const now = new Date();
-    const scheduleElems = document.getElementsByClassName("schedule-component");
-
-    for(let i = 0; i < scheduleElems.length; i++) {
-        ZoomScheduleTimeScaleWhen( scheduleElems[i], now, 1/60 );
-    }
-}*/
-
-
 /**
- * @param {HTMLElement} componentElementId - Shedule container element
+ * @param {string} componentElementId - Schedule container element id
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function ZoomScheduleTimeScale( componentElement, pixelsPerSecond ) {
-    let datePosition = componentElement.getAttribute( "date-position" );
+function InitializeTimelineElement( componentElementId, pixelsPerSecond ) {
+    const timelineElement = document.getElementById( componentElementId+"_timeline" );
+    
+    ZoomScheduleTimeScale( timelineElement, pixelsPerSecond );
+
+    //
+
+    let mouseOverIntervalId = "";
+
+    timelineElement.addEventListener(
+        "mousedown",
+        () => {
+            clearInterval( mouseOverIntervalId );
+            mouseOverIntervalId = setInterval( () => {
+                DrawSegmentIf( componentElementId );
+            }, 50);
+        }
+    );
+
+    timelineElement.addEventListener(
+        "mouseleave",
+        () => clearInterval( mouseOverIntervalId )
+    );
+    timelineElement.addEventListener(
+        "mouseup",
+        () => clearInterval( mouseOverIntervalId )
+    );
+}
+
+/**
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element
+ * @param {number} pixelsPerSecond - Scale of pixels per second of time
+ */
+function ZoomScheduleTimeScale( timelineElement, pixelsPerSecond ) {
+    let datePosition = timelineElement.getAttribute( "date-position" );
     datePosition = datePosition !== null
         ? typeof datePosition === 'string' || datePosition instanceof String
             ? parseInt(datePosition)
@@ -22,21 +45,21 @@ function ZoomScheduleTimeScale( componentElement, pixelsPerSecond ) {
     
     if( datePosition === null ) {
         datePosition = Date.now();
-        componentElement.setAttribute( "zoom-level", datePosition );
+        timelineElement.setAttribute( "zoom-level", datePosition );
     } else {
         datePosition = parseInt( datePosition );
     }
     
-    ZoomScheduleTimeScaleWhen( componentElement, datePosition, pixelsPerSecond );
-}
+    ZoomScheduleTimeScaleWhen( timelineElement, datePosition, pixelsPerSecond );
+ }
 
 /**
- * @param {HTMLElement} componentElementId - Shedule container element
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element
  * @param {numer} startDateMilliseconds - Start date
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function ZoomScheduleTimeScaleWhen( componentElement, startDateMilliseconds, pixelsPerSecond ) {
-    componentElement.innerHTML = "";
+function ZoomScheduleTimeScaleWhen( timelineElement, startDateMilliseconds, pixelsPerSecond ) {
+    timelineElement.innerHTML = "";
 
     //
 
@@ -48,19 +71,19 @@ function ZoomScheduleTimeScaleWhen( componentElement, startDateMilliseconds, pix
     const pixelsPerYear = pixelsPerDay * 365;
     
     if( pixelsPerYear > 24 ) {
-        PopulateScheduleYearsMarkers( componentElement, startDate, pixelsPerSecond );
+        PopulateScheduleYearsMarkers( timelineElement, startDate, pixelsPerSecond );
     }
     if( pixelsPerMonth > 24 ) {
-        PopulateScheduleMonthsMarkers( componentElement, startDate, pixelsPerSecond );
+        PopulateScheduleMonthsMarkers( timelineElement, startDate, pixelsPerSecond );
     }
     if( pixelsPerDay > 24 ) {
-        PopulateScheduleDaysMarkers( componentElement, startDate, pixelsPerSecond );
+        PopulateScheduleDaysMarkers( timelineElement, startDate, pixelsPerSecond );
     }
     if( pixelsPerHour > 24 ) {
-        PopulateScheduleHoursMarkers( componentElement, startDate, pixelsPerSecond );
+        PopulateScheduleHoursMarkers( timelineElement, startDate, pixelsPerSecond );
     }
     if( pixelsPerMinute > 24 ) {
-        PopulateScheduleMinutesMarkers( componentElement, startDate, pixelsPerSecond );
+        PopulateScheduleMinutesMarkers( timelineElement, startDate, pixelsPerSecond );
     }
 }
 
@@ -281,4 +304,73 @@ function GetDaysInMonth(date) {
  */
 function GetDaysInYear( year ) {
     return ((year % 4 === 0 && year % 100 > 0) || year % 400 == 0) ? 366 : 365;
+}
+
+
+////////////////
+
+/**
+ * @param {string} timelineElementId - Timeline element id
+ */
+function DrawSegmentIf( timelineElementId ) {
+    const switchElem = document.getElementById( timelineElementId+"_draw_mode_toggle" );
+    if( switchElem === null ) {
+        console.error( "No schedule mode switch element found ("+timelineElementId+"_draw_mode_toggle)" );
+        return;
+    }
+
+    if( !switchElem.checked ) {
+        return;
+    }
+    
+    const timelineElem = document.getElementById( timelineElementId+"_timeline" );
+    if( timelineElem === null ) {
+        console.error( "No schedule timeline element found ("+timelineElementId+"_timeline)" );
+        return;
+    }
+
+    if( window.CurrentMousePosition === null ) {
+        console.error( "No mouse cursor found" );
+        return;
+    }
+
+    var rect = timelineElem.getBoundingClientRect();
+    var x = window.CurrentMousePosition.x - rect.left; //x position within the element.
+    var y = window.CurrentMousePosition.y - rect.top;  //y position within the element.
+
+    if( y >= 0 && y < timelineElem.clientHeight ) {
+        this.DrawSegment( timelineElem, x );;
+    }
+}
+
+/**
+ * @param {HTMLElement} timelineElement - Timeline element
+ * @param {Number} relativeX - Draw position
+ */
+function DrawSegment( timelineElement, relativeX ) {
+    let currentDrawSegElem = document.getElementById("current_timeline_draw_seg");
+
+    if( currentDrawSegElem === null ) {
+        currentDrawSegElem = document.createElement("div");
+        currentDrawSegElem.id = "current_timeline_draw_seg";
+        currentDrawSegElem.style.width = "4px";
+        currentDrawSegElem.style.left = (relativeX-2)+"px";
+        timelineElement.appendChild( currentDrawSegElem );
+
+        return;
+    }
+
+    let minX = currentDrawSegElem.offsetLeft;
+    if( relativeX < minX ) {
+        const leftDiff = minX - relativeX + 2;
+        currentDrawSegElem.style.width = (currentDrawSegElem.offsetWidth + leftDiff)+"px";
+        minX = relativeX - 2;
+        currentDrawSegElem.style.left = minX+"px";
+    }
+
+    let maxX = currentDrawSegElem.offsetWidth + minX;
+    if( relativeX >= maxX ) {
+        maxX = relativeX + 2;
+        currentDrawSegElem.style.width = (maxX - minX)+"px";
+    }
 }
