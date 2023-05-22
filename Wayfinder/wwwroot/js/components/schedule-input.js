@@ -1,33 +1,51 @@
+window.ScheduleInput = window.ScheduleInput ?? {};
+
+
+
 /**
  * @param {string} componentElementId - Schedule container element id
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function InitializeTimelineElement( componentElementId, pixelsPerSecond ) {
+window.ScheduleInput.InitializeTimelineElement = function( componentElementId, pixelsPerSecond ) {
     const timelineElement = document.getElementById( componentElementId+"_timeline" );
     
-    ZoomScheduleTimeScale( timelineElement, pixelsPerSecond );
+    this.ZoomScheduleTimeScale( timelineElement, pixelsPerSecond );
 
     //
 
-    let mouseOverIntervalId = "";
+    let mouseOverIntervalId = 0;
 
     timelineElement.addEventListener(
         "mousedown",
         () => {
-            clearInterval( mouseOverIntervalId );
-            mouseOverIntervalId = setInterval( () => {
-                DrawSegmentIf( componentElementId );
+            window.clearInterval( mouseOverIntervalId );
+            mouseOverIntervalId = window.setInterval( () => {
+                this.DrawSegmentIf( componentElementId );
             }, 50);
         }
     );
 
     timelineElement.addEventListener(
         "mouseleave",
-        () => clearInterval( mouseOverIntervalId )
+        () => {
+            window.clearInterval(mouseOverIntervalId);
+
+            const data = this.GetLatestTimeSegment();
+            if( data !== null ) {
+                window.CallAJAX("api/ScheduleInput/AddTimeSeg", data, () => {})
+            }
+        }
     );
     timelineElement.addEventListener(
         "mouseup",
-        () => clearInterval( mouseOverIntervalId )
+        () => {
+            window.clearInterval( mouseOverIntervalId );
+
+            const data = this.GetLatestTimeSegment();
+            if( data !== null ) {
+                window.CallAJAX("api/ScheduleInput/AddTimeSeg", data, () => {})
+            }
+        }
     );
 }
 
@@ -35,30 +53,36 @@ function InitializeTimelineElement( componentElementId, pixelsPerSecond ) {
  * @param {HTMLElement} timelineElement - Schedule component's timeline element
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function ZoomScheduleTimeScale( timelineElement, pixelsPerSecond ) {
-    let datePosition = timelineElement.getAttribute( "date-position" );
+window.ScheduleInput.ZoomScheduleTimeScale = function( timelineElement, pixelsPerSecond ) {
+    let datePosition = timelineElement.getAttribute( "current-timestamp" );
     datePosition = datePosition !== null
         ? typeof datePosition === 'string' || datePosition instanceof String
-            ? parseInt(datePosition)
+            ? window.parseInt(datePosition)
             : datePosition
         : null;
     
     if( datePosition === null ) {
         datePosition = Date.now();
-        timelineElement.setAttribute( "zoom-level", datePosition );
+
+        timelineElement.setAttribute( "current-timestamp", datePosition );
     } else {
-        datePosition = parseInt( datePosition );
+        datePosition = window.parseInt( datePosition );
     }
+
+    timelineElement.setAttribute( "current-pixels-per-second", pixelsPerSecond );
     
-    ZoomScheduleTimeScaleWhen( timelineElement, datePosition, pixelsPerSecond );
+    this.ZoomScheduleTimeScaleWhen( timelineElement, datePosition, pixelsPerSecond );
  }
 
 /**
  * @param {HTMLElement} timelineElement - Schedule component's timeline element
- * @param {numer} startDateMilliseconds - Start date
+ * @param {number} startDateMilliseconds - Start date
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function ZoomScheduleTimeScaleWhen( timelineElement, startDateMilliseconds, pixelsPerSecond ) {
+window.ScheduleInput.ZoomScheduleTimeScaleWhen = function(
+            timelineElement,
+            startDateMilliseconds,
+            pixelsPerSecond ) {
     timelineElement.innerHTML = "";
 
     //
@@ -71,42 +95,42 @@ function ZoomScheduleTimeScaleWhen( timelineElement, startDateMilliseconds, pixe
     const pixelsPerYear = pixelsPerDay * 365;
     
     if( pixelsPerYear > 24 ) {
-        PopulateScheduleYearsMarkers( timelineElement, startDate, pixelsPerSecond );
+        this.PopulateScheduleYearsMarkers( timelineElement, startDate, pixelsPerSecond );
     }
     if( pixelsPerMonth > 24 ) {
-        PopulateScheduleMonthsMarkers( timelineElement, startDate, pixelsPerSecond );
+        this.PopulateScheduleMonthsMarkers( timelineElement, startDate, pixelsPerSecond );
     }
     if( pixelsPerDay > 24 ) {
-        PopulateScheduleDaysMarkers( timelineElement, startDate, pixelsPerSecond );
+        this.PopulateScheduleDaysMarkers( timelineElement, startDate, pixelsPerSecond );
     }
     if( pixelsPerHour > 24 ) {
-        PopulateScheduleHoursMarkers( timelineElement, startDate, pixelsPerSecond );
+        this.PopulateScheduleHoursMarkers( timelineElement, startDate, pixelsPerSecond );
     }
     if( pixelsPerMinute > 24 ) {
-        PopulateScheduleMinutesMarkers( timelineElement, startDate, pixelsPerSecond );
+        this.PopulateScheduleMinutesMarkers( timelineElement, startDate, pixelsPerSecond );
     }
 }
 
 
 /**
- * @param {Element} componentElement - Shedule container element
+ * @param {Element} componentElement - Schedule container element
  * @param {Date} startDate - Start date
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function PopulateScheduleYearsMarkers( componentElement, startDate, pixelsPerSecond ) {
+window.ScheduleInput.PopulateScheduleYearsMarkers = function( componentElement, startDate, pixelsPerSecond ) {
     const containerWidth = componentElement.clientWidth;
     const incDate = new Date( startDate );
 
     let year = incDate.getFullYear();
-    let maxDaysOfYear = GetDaysInYear( year );
-    const daysOfYear = CountDaysElapsedOfDateYear( incDate );
+    let maxDaysOfYear = this.GetDaysInYear( year );
+    const daysOfYear = this.CountDaysElapsedOfDateYear( incDate );
     let pixelsPerYear = pixelsPerSecond * 60 * 60 * 24 * maxDaysOfYear;
 
     let x = -((daysOfYear / maxDaysOfYear) * pixelsPerYear);
 
     do {
         year = incDate.getFullYear();
-        maxDaysOfYear = GetDaysInYear( year );
+        maxDaysOfYear = this.GetDaysInYear( year );
         pixelsPerYear = pixelsPerSecond * 60 * 60 * 24 * maxDaysOfYear;
 
         const elem = document.createElement( "div" );
@@ -133,19 +157,19 @@ function PopulateScheduleYearsMarkers( componentElement, startDate, pixelsPerSec
  * @param {Date} startDate - Start date
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function PopulateScheduleMonthsMarkers( componentElement, startDate, pixelsPerSecond ) {
+window.ScheduleInput.PopulateScheduleMonthsMarkers = function( componentElement, startDate, pixelsPerSecond ) {
     const containerWidth = componentElement.clientWidth;
     const incDate = new Date( startDate );
 
     let daysOfMonth = incDate.getDate();
-    let maxDaysOfMonth = GetDaysInMonth( incDate );
+    let maxDaysOfMonth = this.GetDaysInMonth( incDate );
     let pixelsPerMonth = pixelsPerSecond * 60 * 60 * 24 * maxDaysOfMonth;
 
     let x = -((daysOfMonth / maxDaysOfMonth) * pixelsPerMonth);
 
     do {
         const month = incDate.getMonth();
-        maxDaysOfMonth = GetDaysInMonth( incDate );
+        maxDaysOfMonth = this.GetDaysInMonth( incDate );
         pixelsPerMonth = pixelsPerSecond * 60 * 60 * 24 * maxDaysOfMonth;
 
         const elem = document.createElement( "div" );
@@ -166,11 +190,11 @@ function PopulateScheduleMonthsMarkers( componentElement, startDate, pixelsPerSe
  * @param {Date} startDate - Start date
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function PopulateScheduleDaysMarkers( componentElement, startDate, pixelsPerSecond ) {
+window.ScheduleInput.PopulateScheduleDaysMarkers = function( componentElement, startDate, pixelsPerSecond ) {
     const containerWidth = componentElement.clientWidth;
     const incDate = new Date( startDate );
 
-    const secondsOfDay = CountSecondsElapsedInDay(incDate);
+    const secondsOfDay = this.CountSecondsElapsedInDay(incDate);
     const maxSecondsOfDay = 60 * 60 * 24;
     const pixelsPerDay = pixelsPerSecond * maxSecondsOfDay;
 
@@ -196,11 +220,11 @@ function PopulateScheduleDaysMarkers( componentElement, startDate, pixelsPerSeco
  * @param {Date} startDate - Start date
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function PopulateScheduleHoursMarkers( componentElement, startDate, pixelsPerSecond ) {
+window.ScheduleInput.PopulateScheduleHoursMarkers = function( componentElement, startDate, pixelsPerSecond ) {
     const containerWidth = componentElement.clientWidth;
     const incDate = new Date( startDate );
 
-    const secondsOfHour = CountSecondsElapsedInHour(incDate);
+    const secondsOfHour = this.CountSecondsElapsedInHour(incDate);
     const maxSecondsOfHour = 60 * 60;
     const pixelsPerHour = pixelsPerSecond * maxSecondsOfHour;
 
@@ -225,7 +249,7 @@ function PopulateScheduleHoursMarkers( componentElement, startDate, pixelsPerSec
  * @param {Date} startDate - Start date
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-function PopulateScheduleMinutesMarkers( componentElement, startDate, pixelsPerSecond ) {
+window.ScheduleInput.PopulateScheduleMinutesMarkers = function( componentElement, startDate, pixelsPerSecond ) {
     const containerWidth = componentElement.clientWidth;
     const incDate = new Date( startDate );
 
@@ -255,7 +279,7 @@ function PopulateScheduleMinutesMarkers( componentElement, startDate, pixelsPerS
  * @param {Date} date - Given date
  * @returns {number} Count of days date's year currently has
  */
-function CountDaysElapsedOfDateYear( date ) {
+window.ScheduleInput.CountDaysElapsedOfDateYear = function( date ) {
     const incDate = new Date( date );
     const currMonth = date.getMonth();
     let totalDays = 0;
@@ -272,17 +296,17 @@ function CountDaysElapsedOfDateYear( date ) {
  * @param {Date} date - Given date
  * @returns {number} Count of seconds of date's day currently has
  */
-function CountSecondsElapsedInDay(date) {
+window.ScheduleInput.CountSecondsElapsedInDay = function(date) {
     const hours = date.getHours();
-
-    return CountSecondsElapsedInHour( date ) + (hours * 60 * 60);
+    
+    return this.CountSecondsElapsedInHour( date ) + (hours * 60 * 60);
 }
 
 /**
  * @param {Date} date - Given date
  * @returns {number} Count of seconds of date's hour currently has
  */
-function CountSecondsElapsedInHour(date) {
+window.ScheduleInput.CountSecondsElapsedInHour = function(date) {
     const minutes = date.getMinutes();
 
     return date.getSeconds() + (minutes * 60);
@@ -292,7 +316,7 @@ function CountSecondsElapsedInHour(date) {
  * @param {Date} date - Given date
  * @returns {number} Count of total days month can have
  */
-function GetDaysInMonth(date) {
+window.ScheduleInput.GetDaysInMonth = function(date) {
     const newDate = new Date( date.getFullYear(), date.getMonth() + 1, 0 );
 
     return newDate.getDate();
@@ -302,7 +326,7 @@ function GetDaysInMonth(date) {
  * @param {number} year - Given year
  * @returns {number} Count of total days year can have
  */
-function GetDaysInYear( year ) {
+window.ScheduleInput.GetDaysInYear = function( year ) {
     return ((year % 4 === 0 && year % 100 > 0) || year % 400 == 0) ? 366 : 365;
 }
 
@@ -312,7 +336,7 @@ function GetDaysInYear( year ) {
 /**
  * @param {string} timelineElementId - Timeline element id
  */
-function DrawSegmentIf( timelineElementId ) {
+window.ScheduleInput.DrawSegmentIf = function( timelineElementId ) {
     const switchElem = document.getElementById( timelineElementId+"_draw_mode_toggle" );
     if( switchElem === null ) {
         console.error( "No schedule mode switch element found ("+timelineElementId+"_draw_mode_toggle)" );
@@ -343,11 +367,12 @@ function DrawSegmentIf( timelineElementId ) {
     }
 }
 
+
 /**
  * @param {HTMLElement} timelineElement - Timeline element
  * @param {Number} relativeX - Draw position
  */
-function DrawSegment( timelineElement, relativeX ) {
+window.ScheduleInput.DrawSegment = function( timelineElement, relativeX ) {
     let currentDrawSegElem = document.getElementById("current_timeline_draw_seg");
 
     if( currentDrawSegElem === null ) {
@@ -373,4 +398,44 @@ function DrawSegment( timelineElement, relativeX ) {
         maxX = relativeX + 2;
         currentDrawSegElem.style.width = (maxX - minX)+"px";
     }
+}
+
+
+////////////////
+
+/**
+ * @returns {object} Object (SegTimeMin, SegTimeMax) representing a timeline segment via min and max timestamps.
+ */
+window.ScheduleInput.GetLatestTimeSegment = function() {
+    const currentDrawSegElem = document.getElementById( "current_timeline_draw_seg" );
+    if( currentDrawSegElem === null ) {
+        console.error( "No current time segment." );
+        return null;
+    }
+
+    const timelineElement = currentDrawSegElem.parentElement;
+
+    const startTimeMilliRaw = timelineElement.getAttribute( "current-timestamp" );
+    if( startTimeMilliRaw === null ) {
+        console.error( "No initial timestamp set for schedule input." );
+        return null;
+    }
+    const timeScaleRaw = timelineElement.getAttribute( "current-pixels-per-second" );
+    if( timeScaleRaw === null ) {
+        console.error( "No time scale set for schedule input." );
+        return null;
+    }
+
+    const startTimeMilli = window.parseInt( startTimeMilliRaw );
+    const timeScale = window.parseFloat( timeScaleRaw );
+    const minX = currentDrawSegElem.offsetLeft;
+    const wid = currentDrawSegElem.offsetWidth;
+
+    const secondsStart = minX * timeScale;
+    const secondsEnd = (minX + wid) * timeScale;
+
+    return {
+        SegTimeMin = startTimeMilli + (secondsStart * 1000),
+        SegTimeMax = startTimeMilli + (secondsEnd * 1000)
+    };
 }

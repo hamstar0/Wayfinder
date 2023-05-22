@@ -79,7 +79,7 @@
             //var ts = new TimeSpan( d2.Ticks - d1.Ticks );
 
             await JS.InvokeVoidAsync(
-                "InitializeTimelineElement",
+                "window.ScheduleInput.InitializeTimelineElement",
                 this.ElementID,
                 //ts.TotalMilliseconds,
                 1d / 60d
@@ -132,7 +132,7 @@
         }
 
         await JS.InvokeVoidAsync(
-            "ZoomScheduleTimeScale",
+            "window.ScheduleInput.ZoomScheduleTimeScale",
             this.TimelineElement,
             zoomScale
         );

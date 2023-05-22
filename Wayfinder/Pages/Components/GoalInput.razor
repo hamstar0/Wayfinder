@@ -108,7 +108,7 @@
                 Needed = this.ConceptRaw as ConceptEntry
             };
 
-        this.Data.Goals.Add( newGoal );
+        await this.Data.Goals.AddAsync( newGoal );
 
         int rowsChanged = await this.Data.SaveChangesAsync();
         bool success = rowsChanged == 1;

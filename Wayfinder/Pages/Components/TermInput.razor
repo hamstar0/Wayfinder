@@ -102,7 +102,7 @@
         bool success;
 
         try {
-            this.Data.Terms.Add( newTerm );
+            await this.Data.Terms.AddAsync( newTerm );
 
             rowsChanged = await this.Data.SaveChangesAsync();
             success = rowsChanged == 1;

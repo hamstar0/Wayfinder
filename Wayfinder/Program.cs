@@ -23,6 +23,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>( options => options.SignIn.Req
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 

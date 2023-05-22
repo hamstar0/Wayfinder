@@ -18,10 +18,11 @@ v1
 	-	Finish goal input
 	-	Finish concept input
 	-	Schedule input (for current concept)
-		-	Implement save/cancel buttons
+		-	When finished drawing a segment, upload to server
+
+
+		-	Implement segment time getter
 		-	Add segment drawing (mode toggle button)
-
-
 		-	Implement time zoom
 		-	@Test tick generation
 		-	Implement tick styles + default zoom

@@ -184,7 +184,7 @@
             IsImpossible = this.IsImpossible
         };
 
-        this.Data.Concepts.Add( newConcept );
+        await this.Data.Concepts.AddAsync( newConcept );
 
         int rowsChanged = await this.Data.SaveChangesAsync();
 

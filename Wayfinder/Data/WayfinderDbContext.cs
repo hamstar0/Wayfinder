@@ -7,8 +7,8 @@ namespace Wayfinder.Data;
 
 public class WayfinderDbContext : IdentityDbContext {
     public DbSet<TermEntry> Terms { get; set; } = null!;
-    public DbSet<ScheduleEventEntry> Events { get; set; } = null!;
-    public DbSet<ScheduleEntry> EventSchedules { get; set; } = null!;
+    public DbSet<ScheduleEventEntry> ScheduleEvents { get; set; } = null!;
+    public DbSet<ScheduleEntry> Schedules { get; set; } = null!;
     public DbSet<ConceptEntry> Concepts { get; set; } = null!;
     public DbSet<GoalEntry> Goals { get; set; } = null!;
     public DbSet<PlanStepEntry> PlanSteps { get; set; } = null!;
