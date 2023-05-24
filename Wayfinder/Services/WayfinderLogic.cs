@@ -11,6 +11,9 @@ public class WayfinderLogic {
     public bool IsInitialized => this.AnythingTerm is not null;
 
 
+    private ScheduleEntry? CurrentSchedule = null;
+
+
 
     ////////////////
 
@@ -31,6 +34,45 @@ public class WayfinderLogic {
         }
 
         this.AnythingTerm = anythingTerm;
+    }
+
+
+    ////////////////
+
+    private async Task<ScheduleEntry> GetOrInitCurrentSchedule( WayfinderDbContext ctx ) {
+        if( this.CurrentSchedule is null ) {
+            this.CurrentSchedule = new ScheduleEntry();
+
+            await ctx.Schedules.AddAsync( this.CurrentSchedule );
+        }
+
+        return this.CurrentSchedule;
+    }
+
+    public async Task<ScheduleEntry> GetCurrentSchedule( WayfinderDbContext ctx ) {
+        return await this.GetOrInitCurrentSchedule( ctx );
+    }
+
+    public async Task AddScheduleEvent(
+                WayfinderDbContext ctx,
+                DateTime startTime,
+                DateTime endTime,
+                double startPosX,
+                double startPosY,
+                double endPosX,
+                double endPosY ) {
+        var sched = await this.GetOrInitCurrentSchedule( ctx );
+
+        var myevent = new ScheduleEventEntry {
+            StartTime = startTime,
+            EndTime = endTime,
+            StartPosX = startPosX,
+            StartPosY = startPosY,
+            EndPosX = endPosX,
+            EndPosY = endPosY,
+            Schedule = sched
+        };
+        await ctx.ScheduleEvents.AddAsync( myevent );
     }
 }
 

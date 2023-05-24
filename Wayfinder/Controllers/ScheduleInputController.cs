@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Wayfinder.Data;
 using Wayfinder.Data.Models;
+using Wayfinder.Services;
 
 namespace Wayfinder.Controllers;
 
@@ -8,18 +9,20 @@ namespace Wayfinder.Controllers;
 [Route( "api/[controller]/[action]" )]
 [ApiController]
 public class ScheduleInputController : ControllerBase {
-    [HttpPost( "{id}" )]
+    //[HttpPost( "{id}" )]
     public async Task AddTimeSeg(
+                //[FromRoute] long id,
                 [FromServices] WayfinderDbContext ctx,
-                [FromRoute] long id,
+                [FromServices] WayfinderLogic logic,
                 (long SegTimeMin, long SegTimeMax) data ) {
-        // TODO: validate id
-
-        var myevent = new ScheduleEventEntry {
-            StartTime = DateTimeOffset.FromUnixTimeMilliseconds( data.SegTimeMin ).UtcDateTime,
-            EndTime = DateTimeOffset.FromUnixTimeMilliseconds( data.SegTimeMax ).UtcDateTime
-        };
-
-        await ctx.ScheduleEvents.AddAsync( myevent );
+        await logic.AddScheduleEvent(
+            ctx: ctx,
+            startTime: DateTimeOffset.FromUnixTimeMilliseconds( data.SegTimeMin ).UtcDateTime,
+            endTime: DateTimeOffset.FromUnixTimeMilliseconds( data.SegTimeMax ).UtcDateTime,
+            startPosX: 0,   //TODO
+            startPosY: 0,   //TODO
+            endPosX: 0,   //TODO
+            endPosY: 0   //TODO
+        );
     }
 }

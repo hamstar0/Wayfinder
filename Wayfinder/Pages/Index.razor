@@ -6,24 +6,24 @@
 
 <PageTitle>Wayfinder</PageTitle>
 
-@*<GoalInput ElementID="main_goal_input"
+<GoalInput ElementID="main_goal"
     @bind-CurrentGoalRaw=this.CurrentGoalRaw
-    @bind-ConceptRaw=this.CurrentConceptRaw />*@
-
+    ConceptRaw=this.CurrentConceptRaw />
 <p />
 
-@*<ConceptInput ElementID="main_concept_input"
-    @bind-CurrentConceptRaw=this.CurrentConceptRaw />*@
+<ConceptInput ElementID="main_concept"
+    @bind-CurrentConceptRaw=this.CurrentConceptRaw
+    CurrentScheduleRaw=this.CurrentScheduleRaw />
 
-@*<ScheduleInput ElementID=""></ScheduleInput>*@
+<ScheduleInput ElementID="main_schedule"
+    @bind-CurrentScheduleRaw=this.CurrentScheduleRaw />
 
 @*<PlanStepsInput ElementID=""></PlanStepsInput>*@
-
-<ScheduleInput ElementID="test" />
 
 
 
 @code {
     private object? CurrentGoalRaw { get; set; }
     private object? CurrentConceptRaw { get; set; }
+    private object? CurrentScheduleRaw { get; set; }
 }

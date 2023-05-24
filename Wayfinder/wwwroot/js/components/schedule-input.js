@@ -29,25 +29,29 @@ window.ScheduleInput.InitializeTimelineElement = function( componentElementId, p
         "mouseleave",
         () => {
             window.clearInterval(mouseOverIntervalId);
-
-            const data = this.GetLatestTimeSegment();
-            if( data !== null ) {
-                window.CallAJAX("api/ScheduleInput/AddTimeSeg", data, () => {})
-            }
+            this.SubmitCurrentTimeSegment();
         }
     );
     timelineElement.addEventListener(
         "mouseup",
         () => {
             window.clearInterval( mouseOverIntervalId );
-
-            const data = this.GetLatestTimeSegment();
-            if( data !== null ) {
-                window.CallAJAX("api/ScheduleInput/AddTimeSeg", data, () => {})
-            }
+            this.SubmitCurrentTimeSegment();
         }
     );
 }
+
+
+window.ScheduleInput.SubmitCurrentTimeSegment = function() {
+    const data = this.GetLatestTimeSegment();
+    if( data === null ) {
+        return;
+    }
+
+    window.CallAJAX( "api/ScheduleInput/AddTimeSeg", data, () => {} );
+};
+
+////////////////
 
 /**
  * @param {HTMLElement} timelineElement - Schedule component's timeline element

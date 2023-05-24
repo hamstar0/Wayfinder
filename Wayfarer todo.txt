@@ -1,7 +1,7 @@
 v1
 -	Completion
-	-	Schedule input
-		-	Implement time shift (click + drag)
+	-	Refine schedule input
+-	Implement location input
 -	Implement inquisitor prompting engine
 -	Implement/refine main interface
 -	Implement components
@@ -17,10 +17,10 @@ v1
 		-	Define concepts for each context
 	-	Finish goal input
 	-	Finish concept input
+
+
 	-	Schedule input (for current concept)
 		-	When finished drawing a segment, upload to server
-
-
 		-	Implement segment time getter
 		-	Add segment drawing (mode toggle button)
 		-	Implement time zoom
