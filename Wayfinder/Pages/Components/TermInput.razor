@@ -44,7 +44,7 @@
         }
     }
 
-    private object? _CurrentTermSelectionRaw { get; set; }
+    private object? _CurrentTermSelectionRaw;
 
     [Parameter]
     public EventCallback<object?> CurrentTermSelectionRawChanged { get; set; }

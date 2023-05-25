@@ -28,7 +28,7 @@ window.ScheduleInput.InitializeTimelineElement = function( componentElementId, p
     timelineElement.addEventListener(
         "mouseleave",
         () => {
-            window.clearInterval(mouseOverIntervalId);
+            window.clearInterval( mouseOverIntervalId );
             this.SubmitCurrentTimeSegment();
         }
     );

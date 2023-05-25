@@ -56,6 +56,24 @@
     private string IsFactElementID => $"{this.ElementID}_isfact";
     private string IsImpossibleElementID => $"{this.ElementID}_isimpossible";
 
+    ////
+
+    [Parameter, EditorRequired]
+    public object? CurrentScheduleRaw {
+        get => this._CurrentScheduleRaw;
+        set {
+            if( this._CurrentScheduleRaw != value ) {
+                this.CurrentScheduleRawChanged.InvokeAsync( value );
+            }
+            this._CurrentScheduleRaw = value;
+        }
+    }
+
+    private object? _CurrentScheduleRaw;
+
+    [Parameter]
+    public EventCallback<object?> CurrentScheduleRawChanged { get; set; }
+
 
 
     ////
@@ -181,7 +199,8 @@
             TermB = this.TermBRaw as TermEntry,
             TermRel = this.TermRelRaw as TermEntry,
             IsFact = this.IsFact,
-            IsImpossible = this.IsImpossible
+            IsImpossible = this.IsImpossible,
+            Schedule = this.CurrentScheduleRaw as ScheduleEntry
         };
 
         await this.Data.Concepts.AddAsync( newConcept );

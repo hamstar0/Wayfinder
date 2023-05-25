@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿/*using Microsoft.AspNetCore.Mvc;
 using Wayfinder.Data;
 using Wayfinder.Data.Models;
 using Wayfinder.Services;
@@ -25,4 +25,4 @@ public class ScheduleInputController : ControllerBase {
             endPosY: 0   //TODO
         );
     }
-}
+}*/

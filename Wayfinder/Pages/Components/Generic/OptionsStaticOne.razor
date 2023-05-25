@@ -9,7 +9,7 @@
                     id='@($"{this.ElementID}_{value}_any")'
                     name='@($"{this.ElementID}_any")'
                     class="btn btn-primary"
-                    @onchange=@( async e => this.OnChangedOne(value) )>
+                    @onchange=@( async e => await Task.Run(() => this.CurrentOptions = value) )>
             <label for='@($"{this.ElementID}_{value}_any")'>@label</label>
         }
     }
@@ -31,7 +31,17 @@
     ////
 
     [Parameter]
-    public string CurrentOptions { get; set; } = "";
+    public string CurrentOptions {
+        get => this._CurrentOptions;
+        set {
+            if( this._CurrentOptions != value ) {
+                this.CurrentOptionsChanged.InvokeAsync( value );
+            }
+            this._CurrentOptions = value;
+        }
+    }
+
+    private string _CurrentOptions = "";
 
     [Parameter]
     public EventCallback<string> CurrentOptionsChanged { get; set; }

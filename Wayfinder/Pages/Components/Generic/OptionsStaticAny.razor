@@ -31,7 +31,17 @@
     ////
 
     [Parameter]
-    public ISet<string> CurrentOptions { get; set; } = new HashSet<string>();
+    public ISet<string> CurrentOptions {
+        get => this._CurrentOptions;
+        set {
+            if( this._CurrentOptions != value ) {
+                this.CurrentOptionsChanged.InvokeAsync( value );
+            }
+            this._CurrentOptions = value;
+        }
+    }
+
+    private ISet<string> _CurrentOptions = new HashSet<string>();
 
     [Parameter]
     public EventCallback<ISet<string>> CurrentOptionsChanged { get; set; }

@@ -64,7 +64,7 @@
         }
     }
 
-    private object? _CurrentGoalRaw { get; set; }
+    private object? _CurrentGoalRaw;
 
     [Parameter]
     public EventCallback<object?> CurrentGoalRawChanged { get; set; }

@@ -51,7 +51,7 @@
         }
     }
 
-    private object? _CurrentScheduleRaw { get; set; }
+    private object? _CurrentScheduleRaw;
 
     [Parameter]
     public EventCallback<object?> CurrentScheduleRawChanged { get; set; }
