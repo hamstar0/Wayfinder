@@ -7,23 +7,20 @@
 
 
 <div style="border:1px; border-style:solid;">
-    <OptionsDynamicOne ElementID='@($"{this.ElementID}_goal")'
+    <OptionsDynamicSingle ElementID='@($"{this.ElementID}_goal")'
             InlineLabel="Enter goal name"
             InitialValue=@this.CurrentGoalRaw
             IsPickerOnly=false
             GetOptionsBySearch=this.GetGoalEntries_Async
             CanSubmitNewOption=this.CanSubmitNewGoal
             OnSubmitNewOptionIf=this.SubmitNewGoal_Async
-            @bind-CurrentOptionSelection=this.CurrentGoalRaw></OptionsDynamicOne>
-    @*<input type="text"
-            placeholder="Enter goal name"
-            @onchange="@( (ChangeEventArgs e) => this.OnChangeGoalName(e) )" />
-    <button type="button"
+            @bind-CurrentOptionSelection=this.CurrentGoalRaw></OptionsDynamicSingle>
+    @* <button type="button"
             class="input-group-btn btn"
             disabled=@(this.CanSubmitGoal() == false)
             @onclick=@(() => this.SubmitNewGoal_Async())>
         Create
-    </button>*@
+    </button> *@
 </div>
 
 
@@ -31,9 +28,6 @@
 @code {
     [Parameter, EditorRequired]
     public string ElementID { get; set; } = null!;
-
-    //[Parameter]
-    //public EventCallback OnChanged { get; set; }
 
     [Parameter, EditorRequired]
     public object? ConceptRaw {
@@ -104,9 +98,9 @@
         }
 
         var newGoal = new GoalEntry {
-                Name = newGoalName,
-                Needed = this.ConceptRaw as ConceptEntry
-            };
+            Name = newGoalName,
+            Needed = this.ConceptRaw as ConceptEntry
+        };
 
         await this.Data.Goals.AddAsync( newGoal );
 

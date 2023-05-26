@@ -39,7 +39,7 @@ window.ScheduleInput.InitializeTimelineElement = function( componentElementId, p
             this.SubmitCurrentTimeSegment();
         }
     );
-}
+};
 
 
 window.ScheduleInput.SubmitCurrentTimeSegment = function() {
@@ -76,7 +76,7 @@ window.ScheduleInput.ZoomScheduleTimeScale = function( timelineElement, pixelsPe
     timelineElement.setAttribute( "current-pixels-per-second", pixelsPerSecond );
     
     this.ZoomScheduleTimeScaleWhen( timelineElement, datePosition, pixelsPerSecond );
- }
+ };
 
 /**
  * @param {HTMLElement} timelineElement - Schedule component's timeline element
@@ -113,7 +113,7 @@ window.ScheduleInput.ZoomScheduleTimeScaleWhen = function(
     if( pixelsPerMinute > 24 ) {
         this.PopulateScheduleMinutesMarkers( timelineElement, startDate, pixelsPerSecond );
     }
-}
+};
 
 
 /**
@@ -154,7 +154,7 @@ window.ScheduleInput.PopulateScheduleYearsMarkers = function( componentElement, 
         x += pixelsPerYear;
         incDate.setFullYear( year + 1, 1, 1 );
     } while( x < containerWidth );
-}
+};
 
 /**
  * @param {Element} componentElement - Shedule container element
@@ -187,7 +187,7 @@ window.ScheduleInput.PopulateScheduleMonthsMarkers = function( componentElement,
         x += pixelsPerMonth;
         incDate.setMonth( month + 1, 1 );
     } while( x < containerWidth );
-}
+};
 
 /**
  * @param {Element} componentElement - Shedule container element
@@ -217,7 +217,7 @@ window.ScheduleInput.PopulateScheduleDaysMarkers = function( componentElement, s
         incDate.setDate( incDate.getDate() + 1 );
         incDate.setHours( 0, 0, 0 );
     } while( x < containerWidth );
-}
+};
 
 /**
  * @param {Element} componentElement - Shedule container element
@@ -246,7 +246,7 @@ window.ScheduleInput.PopulateScheduleHoursMarkers = function( componentElement, 
         x += pixelsPerHour;
         incDate.setHours( incDate.getHours() + 1, 0, 0 );
     } while( x < containerWidth );
-}
+};
 
 /**
  * @param {Element} componentElement - Shedule container element
@@ -274,7 +274,7 @@ window.ScheduleInput.PopulateScheduleMinutesMarkers = function( componentElement
         x += pixelsPerMinute;
         incDate.setMinutes( incDate.getMinutes() + 1, 0 );
     } while( x < containerWidth );
-}
+};
 
 
 ////////////////
@@ -294,7 +294,7 @@ window.ScheduleInput.CountDaysElapsedOfDateYear = function( date ) {
     }
 
     return totalDays + date.getDate();
-}
+};
 
 /**
  * @param {Date} date - Given date
@@ -304,7 +304,7 @@ window.ScheduleInput.CountSecondsElapsedInDay = function(date) {
     const hours = date.getHours();
     
     return this.CountSecondsElapsedInHour( date ) + (hours * 60 * 60);
-}
+};
 
 /**
  * @param {Date} date - Given date
@@ -324,7 +324,7 @@ window.ScheduleInput.GetDaysInMonth = function(date) {
     const newDate = new Date( date.getFullYear(), date.getMonth() + 1, 0 );
 
     return newDate.getDate();
-}
+};
 
 /**
  * @param {number} year - Given year
@@ -332,7 +332,7 @@ window.ScheduleInput.GetDaysInMonth = function(date) {
  */
 window.ScheduleInput.GetDaysInYear = function( year ) {
     return ((year % 4 === 0 && year % 100 > 0) || year % 400 == 0) ? 366 : 365;
-}
+};
 
 
 ////////////////
@@ -369,7 +369,7 @@ window.ScheduleInput.DrawSegmentIf = function( timelineElementId ) {
     if( y >= 0 && y < timelineElem.clientHeight ) {
         this.DrawSegment( timelineElem, x );;
     }
-}
+};
 
 
 /**
@@ -402,7 +402,7 @@ window.ScheduleInput.DrawSegment = function( timelineElement, relativeX ) {
         maxX = relativeX + 2;
         currentDrawSegElem.style.width = (maxX - minX)+"px";
     }
-}
+};
 
 
 ////////////////
@@ -442,4 +442,4 @@ window.ScheduleInput.GetLatestTimeSegment = function() {
         SegTimeMin = startTimeMilli + (secondsStart * 1000),
         SegTimeMax = startTimeMilli + (secondsEnd * 1000)
     };
-}
+};

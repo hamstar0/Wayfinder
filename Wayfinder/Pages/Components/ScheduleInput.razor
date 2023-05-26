@@ -12,7 +12,7 @@
 
 <div id="@this.ElementID" class="schedule-component-container">
     <div>
-        <OptionsStaticOne ElementID='@($"{this.ElementID}_scale_controls")'
+        <OptionsStaticSingle ElementID='@($"{this.ElementID}_scale_controls")'
                 Options=@( Enum.GetNames( typeof(ScheduleInput.ZoomStates) )
                     .Select( v => (v, v) )
                 )

@@ -5,20 +5,31 @@ v1
 -	Implement inquisitor prompting engine
 -	Implement/refine main interface
 -	Implement components
-	-	Inquisitor interface
 	-	Plan input/picker
 	-	@Test
 	-	Concept picker
 	-	Implement term parent picker
-	-	@Test
-	-	Add context for concept input (goal, plan (manual), inquisition (auto))
-		-	Implement switching for component activation (clicking on a component)
-		-	Implement switching for context + UI update trigger
-		-	Define concepts for each context
-	-	Finish goal input
+-	Implement tabbed layout
+	-	Side bar
+		-	Goals list (top)
+		-	Plans list (bottom)
+	-	Inquisitor tab
+		-	Usage info text
+		-	Concept input
+		-	Prompting meta data (future use)
+	-	Plan tab
+		-	Plan name input
+		-	Concept input
+		-	Plan timeline
+	-	Goal tab
+		-	Goal input
+		-	Concept input
+	-	Implement tab switching
+	-	Define tabs
+
+
+-	Implement components
 	-	Finish concept input
-
-
 	-	Schedule input (for current concept)
 		-	When finished drawing a segment, upload to server
 		-	Implement segment time getter

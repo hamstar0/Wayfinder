@@ -12,14 +12,14 @@
 
 
 <div style="border:1px; border-style:solid;">
-    <OptionsDynamicOne ElementID='@($"{this.ElementID}_term")'
+    <OptionsDynamicSingle ElementID='@($"{this.ElementID}_term")'
             InlineLabel="Enter term"
             InitialValue=@(this.InitialTermChoice)
             IsPickerOnly=false
             GetOptionsBySearch=this.GetTermEntries_Async
             CanSubmitNewOption=this.CanSubmitNewTerm
             OnSubmitNewOptionIf=this.SubmitNewTerm_Async
-            @bind-CurrentOptionSelection=this.CurrentTermSelectionRaw></OptionsDynamicOne>
+            @bind-CurrentOptionSelection=this.CurrentTermSelectionRaw></OptionsDynamicSingle>
 </div>
 
 
