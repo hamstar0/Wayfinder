@@ -1,13 +1,23 @@
 v1
 -	Completion
 	-	Refine schedule input
+	-	Implement plan sequence as a graph view
 -	Implement location input
 -	Implement inquisitor prompting engine
--	Implement/refine main interface
 -	Implement components
-	-	Plan input/picker
-	-	@Test
-	-	Concept picker
+	-	Plan input
+		-	Implement current plan step
+		-	Implement plan steps list
+		-	Layout (note: A button to change to Graph view will exist later)
+			-	3 panes
+				-	Plan steps list
+				-	Current plan step's fulfillments
+				-	Current plan step's requirements
+			-	Buttons (Create, Update, Delete)
+			-	Name input
+	-	Goal input control buttons
+		-	Add Delete button confirmation
+		-	Add buttons (Create, Update, Delete)
 	-	Implement term parent picker
 -	Implement tabbed layout
 	-	Side bar
@@ -18,18 +28,20 @@ v1
 		-	Concept input
 		-	Prompting meta data (future use)
 	-	Plan tab
+		-	Usage info text
+		-	Concept input (disabled until plan name is defined)
 		-	Plan name input
-		-	Concept input
 		-	Plan timeline
 	-	Goal tab
+		-	Usage info text
+		-	Concept input (disabled until goal is defined)
 		-	Goal input
-		-	Concept input
 	-	Implement tab switching
 	-	Define tabs
-
-
 -	Implement components
-	-	Finish concept input
+	-	Implement disabled state for concept input
+
+
 	-	Schedule input (for current concept)
 		-	When finished drawing a segment, upload to server
 		-	Implement segment time getter
