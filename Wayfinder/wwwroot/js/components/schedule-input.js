@@ -29,27 +29,19 @@ window.ScheduleInput.InitializeTimelineElement = function( componentElementId, p
         "mouseleave",
         () => {
             window.clearInterval( mouseOverIntervalId );
-            this.SubmitCurrentTimeSegment();
+            this.SubmitCurrentTimeSegment( componentElementId );
         }
     );
     timelineElement.addEventListener(
         "mouseup",
         () => {
             window.clearInterval( mouseOverIntervalId );
-            this.SubmitCurrentTimeSegment();
+            this.SubmitCurrentTimeSegment( componentElementId );
         }
     );
 };
 
 
-window.ScheduleInput.SubmitCurrentTimeSegment = function() {
-    const data = this.GetLatestTimeSegment();
-    if( data === null ) {
-        return;
-    }
-
-    window.CallAJAX( "api/ScheduleInput/AddTimeSeg", data, () => {} );
-};
 
 ////////////////
 
@@ -75,7 +67,7 @@ window.ScheduleInput.ZoomScheduleTimeScale = function( timelineElement, pixelsPe
 
     timelineElement.setAttribute( "current-pixels-per-second", pixelsPerSecond );
     
-    this.ZoomScheduleTimeScaleWhen( timelineElement, datePosition, pixelsPerSecond );
+    this.ZoomScheduleTimeScaleWhenIf( timelineElement, datePosition, pixelsPerSecond );
  };
 
 /**
@@ -83,13 +75,11 @@ window.ScheduleInput.ZoomScheduleTimeScale = function( timelineElement, pixelsPe
  * @param {number} startDateMilliseconds - Start date
  * @param {number} pixelsPerSecond - Scale of pixels per second of time
  */
-window.ScheduleInput.ZoomScheduleTimeScaleWhen = function(
+window.ScheduleInput.ZoomScheduleTimeScaleWhenIf = function(
             timelineElement,
             startDateMilliseconds,
             pixelsPerSecond ) {
     timelineElement.innerHTML = "";
-
-    //
 
     const startDate = new Date( startDateMilliseconds );
     const pixelsPerMinute = pixelsPerSecond * 60;
@@ -357,6 +347,10 @@ window.ScheduleInput.DrawSegmentIf = function( timelineElementId ) {
         return;
     }
 
+    if( timelineElement.getAttribute("disabled") == "true" ) {
+        return;
+    }
+
     if( window.CurrentMousePosition === null ) {
         console.error( "No mouse cursor found" );
         return;
@@ -377,6 +371,12 @@ window.ScheduleInput.DrawSegmentIf = function( timelineElementId ) {
  * @param {Number} relativeX - Draw position
  */
 window.ScheduleInput.DrawSegment = function( timelineElement, relativeX ) {
+    if( timelineElement.getAttribute("disabled") == "true" ) {
+        return;
+    }
+
+    //
+
     let currentDrawSegElem = document.getElementById("current_timeline_draw_seg");
 
     if( currentDrawSegElem === null ) {
@@ -440,6 +440,24 @@ window.ScheduleInput.GetLatestTimeSegment = function() {
 
     return {
         SegTimeMin = startTimeMilli + (secondsStart * 1000),
-        SegTimeMax = startTimeMilli + (secondsEnd * 1000)
+        SegTime
+
+
+////////////////Max = startTimeMilli + (secondsEnd * 1000)
     };
+    window.ScheduleInput.SubmitCurrentTimeSegment = function() {
+        const timelineElement = document.getElementById(componentElementId + "_timeline");
+
+        if(timelineElement.getAttribute("disabled") == "true") {
+            return;
+        }
+
+        const data = this.GetLatestTimeSegment();
+        if(data === null) {
+            return;
+        }
+
+        window.CallAJAX("api/ScheduleInput/AddTimeSeg", data, () => {});
+    };
+
 };

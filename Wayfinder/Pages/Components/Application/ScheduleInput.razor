@@ -1,7 +1,7 @@
 ﻿@using Wayfinder.Data.Models;
 
 
-@namespace Wayfinder.Pages.Components.Generic
+@namespace Wayfinder.Pages.Components.Application
 
 
 @inject IJSRuntime JS;
@@ -13,13 +13,19 @@
 <div id="@this.ElementID" class="schedule-component-container">
     <div>
         <OptionsStaticSingle ElementID='@($"{this.ElementID}_scale_controls")'
+                Disabled=@this.Disabled
                 Options=@( Enum.GetNames( typeof(ScheduleInput.ZoomStates) )
                     .Select( v => (v, v) )
                 )
                 CurrentOptionsChanged=@( async e => this.ApplyZoom(e) ) />
-        <ToggleSwitch ElementID='@($"{this.ElementID}_draw_mode_toggle")' Label="Draw Time Segments" />
+        <ToggleSwitch ElementID='@($"{this.ElementID}_draw_mode_toggle")'
+                Disabled=@this.Disabled
+                Label="Draw Time Segments" />
     </div>
-    <div class="schedule-component" @ref=this.TimelineElement id ='@($"{this.ElementID}_timeline")'>
+    <div id='@($"{this.ElementID}_timeline")'
+            class="schedule-component"
+            disabled=@this.Disabled
+            @ref=this.TimelineElement>
     </div>
 </div>
 
@@ -34,6 +40,9 @@
 
     [Parameter, EditorRequired]
     public string ElementID { get; set; } = null!;
+    
+    [Parameter]
+    public bool Disabled { get; set; } = false;
 
     [Parameter]
     public ScheduleEntry? InitialSchedule { get; set; }

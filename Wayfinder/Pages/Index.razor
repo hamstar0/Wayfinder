@@ -2,28 +2,92 @@
 
 @using Wayfinder.Pages.Components.Generic
 
+@inject Wayfinder.Data.WayfinderDbContext Data;
+
 
 
 <PageTitle>Wayfinder</PageTitle>
 
-<GoalInput ElementID="main_goal"
-    @bind-CurrentGoalRaw=this.CurrentGoalRaw
-    ConceptRaw=this.CurrentConceptRaw />
-<p />
 
-<ConceptInput ElementID="main_concept"
-    @bind-CurrentConceptRaw=this.CurrentConceptRaw
-    CurrentScheduleRaw=this.CurrentScheduleRaw />
+<div style="display: grid; grid-template-columns: auto auto;">
+    <div style="height: 100%;">
+        <div style="height: 50%;">
+            <SmartDataList Source=@this.Data.Goals />
+        </div>
+        <div style="height: 50%;">
+            <SmartDataList Source=@this.Data.Plans />
+        </div>
+    </div>
+    <div class="tab-container">
+        <input type="radio" id="tab-goals" name="css-tabs" checked>
+        <input type="radio" id="tab-plans" name="css-tabs">
+        <input type="radio" id="tab-knowledge" name="css-tabs">
 
-<ScheduleInput ElementID="main_schedule"
-    @bind-CurrentScheduleRaw=this.CurrentScheduleRaw />
+        <ul class="tab-button-container">
+            <li class="tab-button"><label for="tab-goals">Goals Entry</label></li>
+            <li class="tab-button"><label for="tab-plans">Goal Plan Maker</label></li>
+            <li class="tab-button"><label for="tab-knowledge">Knowledge Exploration</label></li>
+        </ul>
 
-@*<PlanStepsInput ElementID=""></PlanStepsInput>*@
+        <div class="tab-content">
+            <h4>Goals Entry</h4>
+            <p>Goals, as per the name, are end points of specific life endeavors. These are defined as a minimalistic
+                piece of data representing an as-yet-unimplemented future state of being of a given thing.
+            </p>
+            <ConceptInput ElementID="current_goal_concept"
+                    @bind-CurrentConceptRaw=this.CurrentGoalConceptRaw
+                    CurrentScheduleRaw=this.CurrentGoalScheduleRaw />
+            <ScheduleInput ElementID="current_goal_concept_schedule"
+                    @bind-CurrentScheduleRaw=this.CurrentGoalScheduleRaw />
+            <GoalInput ElementID="current_goal"
+                    @bind-CurrentGoalRaw=this.CurrentGoalRaw
+                    CurrentConceptRaw=this.CurrentGoalConceptRaw />
+        </div>
+
+        <div class="tab-content">
+            <h4>Goal Plan Maker</h4>
+            <p>Plans are a sequence of sub-goals (&nbsp;as-yet-unimplemented states of being&nbsp;) that lead
+                sequentially to the implementation of a given end-goal. They may be built with branching paths,
+                or outright exist as speculative or virtual scenarios.</p>
+            <ConceptInput ElementID="current_plan_concept"
+                    @bind-CurrentConceptRaw=this.CurrentPlanConceptRaw
+                    CurrentScheduleRaw=this.CurrentPlanScheduleRaw />
+            <ScheduleInput ElementID="current_plan_concept_schedule"
+                    @bind-CurrentScheduleRaw=this.CurrentPlanScheduleRaw />
+            @*<PlanStepsInput ElementID="current_plan"
+                    CurrentGoalRaw=this.CurrentGoalRaw
+                    CurrentConceptRaw=this.CurrentPlanConceptRaw
+                    @bind-CurrentPlanRaw=this.CurrentPlanRaw />*@
+        </div>
+
+        <div class="tab-content">
+            <h4>Knowledge Exploration</h4>
+            <p>To give meaning to goals and their respective plans for implementation, knowledge is needed about
+                the state of being of each pertinant thing of relevance. This semi-automated data entry process
+                will allow for quickly supplying said knowledge, as needed.</p>
+            <ConceptInput ElementID="current_data_concept"
+                    @bind-CurrentConceptRaw=this.CurrentDataConceptRaw
+                    CurrentScheduleRaw=this.CurrentDataScheduleRaw />
+            <ScheduleInput ElementID="current_data_concept_schedule"
+                    @bind-CurrentScheduleRaw=this.CurrentDataScheduleRaw />
+            @*<KnowledgeInput ElementID="current_data"
+                    CurrentConceptRaw=@this.CurrentDataConceptRaw />*@
+        </div>
+    </div>
+</div>
+
 
 
 
 @code {
     private object? CurrentGoalRaw { get; set; }
-    private object? CurrentConceptRaw { get; set; }
-    private object? CurrentScheduleRaw { get; set; }
+    private object? CurrentGoalConceptRaw { get; set; }
+    private object? CurrentGoalScheduleRaw { get; set; }
+
+    private object? CurrentPlanRaw { get; set; }
+    private object? CurrentPlanConceptRaw { get; set; }
+    private object? CurrentPlanScheduleRaw { get; set; }
+
+    private object? CurrentDataConceptRaw { get; set; }
+    private object? CurrentDataScheduleRaw { get; set; }
 }

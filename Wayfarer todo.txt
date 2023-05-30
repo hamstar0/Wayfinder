@@ -23,7 +23,9 @@ v1
 	-	Side bar
 		-	Goals list (top)
 		-	Plans list (bottom)
-	-	Inquisitor tab
+
+
+	-	"Knowledge Exploration" tab
 		-	Usage info text
 		-	Concept input
 		-	Prompting meta data (future use)
@@ -40,8 +42,6 @@ v1
 	-	Define tabs
 -	Implement components
 	-	Implement disabled state for concept input
-
-
 	-	Schedule input (for current concept)
 		-	When finished drawing a segment, upload to server
 		-	Implement segment time getter

@@ -1,5 +1,7 @@
-﻿@namespace Wayfinder.Pages.Components.Generic
-@using Wayfinder.Data.Models;
+﻿@using Wayfinder.Data.Models;
+
+
+@namespace Wayfinder.Pages.Components.Application
 
 
 @inject Wayfinder.Data.WayfinderDbContext Data;
@@ -30,20 +32,20 @@
     public string ElementID { get; set; } = null!;
 
     [Parameter, EditorRequired]
-    public object? ConceptRaw {
-        get => this._ConceptRaw;
+    public object? CurrentConceptRaw {
+        get => this._CurrentConceptRaw;
         set {
-            if( this._ConceptRaw != value ) {
+            if( this._CurrentConceptRaw != value ) {
                 this.CurrentGoalRaw = null;
             }
-            this._ConceptRaw = value;
+            this._CurrentConceptRaw = value;
         }
     }
 
-    private object? _ConceptRaw;
+    private object? _CurrentConceptRaw;
 
     [Parameter]
-    public EventCallback<object?> ConceptRawChanged { get; set; }
+    public EventCallback<object?> CurrentConceptRawChanged { get; set; }
 
     ////
 
@@ -78,7 +80,7 @@
 
 
     public bool CanSubmitNewGoal( string newOption, object? currentOption ) {
-        if( this.ConceptRaw is null ) {
+        if( this.CurrentConceptRaw is null ) {
             return false;
         }
 
@@ -99,7 +101,7 @@
 
         var newGoal = new GoalEntry {
             Name = newGoalName,
-            Needed = this.ConceptRaw as ConceptEntry
+            Needed = this.CurrentConceptRaw as ConceptEntry
         };
 
         await this.Data.Goals.AddAsync( newGoal );
