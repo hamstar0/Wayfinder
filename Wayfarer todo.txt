@@ -19,12 +19,14 @@ v1
 		-	Add Delete button confirmation
 		-	Add buttons (Create, Update, Delete)
 	-	Implement term parent picker
+	-	Implement timeline seg pre-load from server
+
+
+	-	Ensure time segs submit with correct timestamp
 -	Implement tabbed layout
 	-	Side bar
 		-	Goals list (top)
 		-	Plans list (bottom)
-
-
 	-	"Knowledge Exploration" tab
 		-	Usage info text
 		-	Concept input

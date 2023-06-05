@@ -1,4 +1,5 @@
-﻿@using Wayfinder.Data.Models;
+﻿@using Wayfinder.Data;
+@using Wayfinder.Data.Models;
 
 
 @namespace Wayfinder.Pages.Components.Application
@@ -13,19 +14,22 @@
 <div id="@this.ElementID" class="schedule-component-container">
     <div>
         <OptionsStaticSingle ElementID='@($"{this.ElementID}_scale_controls")'
-                Disabled=@this.Disabled
-                Options=@( Enum.GetNames( typeof(ScheduleInput.ZoomStates) )
-                    .Select( v => (v, v) )
-                )
-                CurrentOptionsChanged=@( async e => this.ApplyZoom(e) ) />
+                    Disabled=@this.Disabled
+                    Options=@( Enum.GetNames( typeof(ScheduleInput.ZoomStates) )
+                        .Select( v => (v, v) )
+                    )
+                    CurrentOptionsChanged=@( async e => this.ApplyZoom(e) ) />
         <ToggleSwitch ElementID='@($"{this.ElementID}_draw_mode_toggle")'
-                Disabled=@this.Disabled
-                Label="Draw Time Segments" />
+                    Disabled=@this.Disabled
+                    Label="Draw Time Segments" />
     </div>
     <div id='@($"{this.ElementID}_timeline")'
-            class="schedule-component"
-            disabled=@this.Disabled
-            @ref=this.TimelineElement>
+                class="schedule-component"
+                disabled=@this.Disabled
+                @onmousedown=this.BeginDraw
+                @onmouseleave=this.EndDraw
+                @onmouseup=this.EndDraw
+                @ref=this.TimelineElement>
     </div>
 </div>
 
@@ -40,7 +44,7 @@
 
     [Parameter, EditorRequired]
     public string ElementID { get; set; } = null!;
-    
+
     [Parameter]
     public bool Disabled { get; set; } = false;
 
@@ -72,7 +76,7 @@
 
 
     ////
-    
+
     private bool IsInitialized = false;
     private bool IsRendered = false;
 
@@ -118,7 +122,7 @@
             zoomScale /= 60d;
             zoomScale /= 24d;
             zoomScale /= 10d;//30d;
-            //zoomScale /= 365d;
+                             //zoomScale /= 365d;
             break;
         case "Months":
             zoomScale /= 60d;
@@ -129,7 +133,7 @@
         case "Days":
             zoomScale /= 60d;
             zoomScale /= 50d;//60d
-            //zoomScale /= 24d;
+                             //zoomScale /= 24d;
             break;
         case "Hours":
             zoomScale /= 60d;
@@ -145,6 +149,35 @@
             "window.ScheduleInput.ZoomScheduleTimeScale",
             this.TimelineElement,
             zoomScale
+        );
+    }
+
+    ////
+
+    private async Task BeginDraw() {
+        await JS.InvokeVoidAsync(
+            "window.ScheduleInput.BeginDrawingSegment",
+            this.TimelineElement
+        );
+    }
+
+    private async Task EndDraw() {
+        var segRaw = await JS.InvokeAsync<(string SegTimeBeg, string SegTimeEnd)>(
+            "window.ScheduleInput.EndDrawingSegment",
+            this.TimelineElement
+        );
+
+        long segTimeBegMilli = long.Parse( segRaw.SegTimeBeg ) * TimeSpan.TicksPerMillisecond;
+        long segTimeEndMilli = long.Parse( segRaw.SegTimeEnd ) * TimeSpan.TicksPerMillisecond;
+        
+        await this.Logic.AddScheduleEvent(
+            ctx: this.Data,
+            startTime: WayfinderDbContext.EpochMillisecondsToDateTime( segTimeBegMilli ),
+            endTime: WayfinderDbContext.EpochMillisecondsToDateTime( segTimeEndMilli ),
+            startPosX: 0,
+            startPosY: 0,
+            endPosX: 0,
+            endPosY: 0,
         );
     }
 }

@@ -14,11 +14,11 @@ public class ScheduleInputController : ControllerBase {
                 //[FromRoute] long id,
                 [FromServices] WayfinderDbContext ctx,
                 [FromServices] WayfinderLogic logic,
-                (long SegTimeMin, long SegTimeMax) data ) {
+                (long SegTimeBeg, long SegTimeEnd) data ) {
         await logic.AddScheduleEvent(
             ctx: ctx,
-            startTime: DateTimeOffset.FromUnixTimeMilliseconds( data.SegTimeMin ).UtcDateTime,
-            endTime: DateTimeOffset.FromUnixTimeMilliseconds( data.SegTimeMax ).UtcDateTime,
+            startTime: DateTimeOffset.FromUnixTimeMilliseconds( data.SegTimeBeg ).UtcDateTime,
+            endTime: DateTimeOffset.FromUnixTimeMilliseconds( data.SegTimeEnd ).UtcDateTime,
             startPosX: 0,   //TODO
             startPosY: 0,   //TODO
             endPosX: 0,   //TODO

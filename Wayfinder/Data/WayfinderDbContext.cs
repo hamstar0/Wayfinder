@@ -6,6 +6,19 @@ namespace Wayfinder.Data;
 
 
 public class WayfinderDbContext : IdentityDbContext {
+    public static DateTime EpochMillisecondsToDateTime( long milliseconds ) {
+        return DateTime.MinValue.AddMilliseconds( (double)milliseconds );
+    }
+
+    public static long ConvertToTimestamp( DateTime value ) {
+        TimeSpan elapsedTime = value - DateTime.MinValue;
+        return (long)elapsedTime.TotalSeconds;
+    }
+
+
+
+    ////////////////
+
     public DbSet<TermEntry> Terms { get; set; } = null!;
     public DbSet<ScheduleEventEntry> ScheduleEvents { get; set; } = null!;
     public DbSet<ScheduleEntry> Schedules { get; set; } = null!;
@@ -17,7 +30,7 @@ public class WayfinderDbContext : IdentityDbContext {
 
 
     ////////////////
-
+    
     public WayfinderDbContext( DbContextOptions<WayfinderDbContext> options )
                 : base( options ) {
     }

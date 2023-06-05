@@ -15,7 +15,7 @@
             <button type="button"
                     class="input-group-btn btn"
                     disabled=@( this.CanSubmitNewOption(this.InputValue, this.CurrentOptionSelection) == false )
-                    @onclick=@( this.SubmitNewOption_Async )>
+                    @onclick=this.SubmitNewOption_Async>
                 @(this.Label is not null ? this.Label : "Create")
             </button>
         }
