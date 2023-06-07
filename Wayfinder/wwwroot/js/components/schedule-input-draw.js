@@ -6,10 +6,13 @@ window.ScheduleInput = window.ScheduleInput ?? {};
 
 window.ScheduleInput.MouseOverIntervalIds = {};
 
-window.ScheduleInput.BeginDrawingSegment = function( timelineElementId ) {
-    let intervalId = this.MouseOverIntervalIds[ timelineElementId ];
 
-    window.clearInterval( intervalId ?? "" );
+window.ScheduleInput.BeginDrawingSegment = function( timelineElementId ) {
+    let intervalId = timelineElementId in this.MouseOverIntervalIds
+        ? this.MouseOverIntervalIds[ timelineElementId ]
+        : "";
+
+    window.clearInterval( intervalId );
 
     this.MouseOverIntervalIds[ timelineElementId ] = window.setInterval( () => {
         this.DrawSegmentIf( componentElementId );
@@ -22,7 +25,7 @@ window.ScheduleInput.BeginDrawingSegment = function( timelineElementId ) {
  * (as strings).
  */
 window.ScheduleInput.EndDrawingSegment = function( componentElementId ) {
-    let intervalId = this.MouseOverIntervalIds[ componentElementId ];
+    const intervalId = this.MouseOverIntervalIds[ componentElementId ];
 
     window.clearInterval( intervalId ?? "" );
 
@@ -58,22 +61,22 @@ window.ScheduleInput.DrawSegmentIf = function( timelineElementId ) {
         return;
     }
 
-    if( !switchElem.checked ) {
-        return;
-    }
-
     const timelineElement = this.GetTimelineElementOfComponentElement( timelineElementId );
     if( timelineElement === null ) {
         console.error( "No schedule timeline element found ("+timelineElementId+"_timeline)" );
         return;
     }
 
-    if( timelineElement.getAttribute("disabled") == "true" ) {
+    if( window.CurrentMousePosition === null ) {
+        console.error( "No mouse cursor found" );
         return;
     }
 
-    if( window.CurrentMousePosition === null ) {
-        console.error( "No mouse cursor found" );
+    if( !switchElem.checked ) {
+        return;
+    }
+
+    if( timelineElement.getAttribute("disabled") == "true" ) {
         return;
     }
 
@@ -140,8 +143,6 @@ window.ScheduleInput.GetLatestTimeSegment = function( timelineElement ) {
         return null;
     }
 
-    //
-
     const startTimeMilliRaw = timelineElement.getAttribute( "current-timestamp" );
     if( startTimeMilliRaw === null ) {
         console.error( "No initial timestamp set for schedule input." );
@@ -177,7 +178,7 @@ window.ScheduleInput.ResetLatestTimeSegment = function( timelineElement ) {
         return;
     }
 
-    currentDrawSegElem.removeAttribute( "id" );
+    currentDrawSegElem.classList.remove( "current_timeline_draw_seg" );
 };
 
 

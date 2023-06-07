@@ -41,8 +41,9 @@
     top: 96px;
 }
 
+/********/
 
-#current_timeline_draw_seg {
+.current_timeline_draw_seg {
     position: absolute;
     height: 100%;
     background-color: red;
