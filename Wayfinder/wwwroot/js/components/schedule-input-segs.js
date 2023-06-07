@@ -7,6 +7,61 @@ window.ScheduleInput = window.ScheduleInput ?? {};
 window.ScheduleInput.MouseOverIntervalIds = {};
 
 
+
+////////////////
+
+/**
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element.
+ * @param {number} timestampStart - Begin time (milliseconds since epoch).
+ * @param {number} timestampEnd - End time (milliseconds since epoch).
+ * @returns {HTMLElement} - Timeline segment element, or null if overlap detected.
+ */
+window.ScheduleInput.AddSegment = function( timelineElement, timestampStart, timestampEnd ) {
+    const minX = this.GetElementPositionOfTimestamp( timestampStart );
+    const maxX = this.GetElementPositionOfTimestamp( timestampEnd );
+
+    const elem = document.createElement( "div" );
+    elem.style.width = (maxX - minX) + "px";
+    elem.style.left = minX + "px";
+    timelineElement.appendChild( elem );
+
+    return elem;
+};
+
+/**
+ * @param {HTMLElement} timeSegmentElement - Timeline segment element.
+ * @param {number} newTimestampStart - Begin time (milliseconds since epoch).
+ */
+window.ScheduleInput.EditSegmentStart = function( timeSegmentElement, newTimestampStart ) {
+    const newMinX = this.GetElementPositionOfTimestamp( newTimestampStart );
+    const oldMinX = timeSegmentElement.offsetLeft;
+
+    const diff = oldMinX - newMinX;
+    const newWid = timeSegmentElement.offsetWidth + diff;
+    timeSegmentElement.style.width = newWid + "px";
+
+    timeSegmentElement.style.left = newMinX +"px";
+};
+
+/**
+ * @param {HTMLElement} timeSegmentElement - Timeline segment element.
+ * @param {number} newTimestampEnd - End time (milliseconds since epoch).
+ */
+window.ScheduleInput.EditSegmentEnd = function( timelineElement, newTimestampEnd ) {
+    const newMaxX = this.GetElementPositionOfTimestamp( newTimestampEnd );
+    const oldMaxX = timeSegmentElement.offsetLeft + timeSegmentElement.offsetWidth;
+
+    const diff = oldMaxX - newMaxX;
+    const newWid = timeSegmentElement.offsetWidth - diff;
+    timeSegmentElement.style.width = newWid + "px";
+};
+
+
+////////////////
+
+/**
+ * @param {string} timelineElementId - Timeline component element id.
+ */
 window.ScheduleInput.BeginDrawingSegment = function( timelineElementId ) {
     let intervalId = timelineElementId in this.MouseOverIntervalIds
         ? this.MouseOverIntervalIds[ timelineElementId ]
@@ -21,7 +76,7 @@ window.ScheduleInput.BeginDrawingSegment = function( timelineElementId ) {
 
 /**
  * @param {string} componentElementId - Schedule component's id.
- * @returns {object} Object (SegTimeBeg, SegTimeEnd) representing a timeline segment via min and max timestamps
+ * @returns {object} - Object (SegTimeBeg, SegTimeEnd) representing a timeline segment via min and max timestamps
  * (as strings).
  */
 window.ScheduleInput.EndDrawingSegment = function( componentElementId ) {
@@ -49,10 +104,10 @@ window.ScheduleInput.EndDrawingSegment = function( componentElementId ) {
 };
 
 
-////////////////
+////
 
 /**
- * @param {string} timelineElementId - Timeline component element id
+ * @param {string} timelineElementId - Timeline component element id.
  */
 window.ScheduleInput.DrawSegmentIf = function( timelineElementId ) {
     const switchElem = document.getElementById( timelineElementId+"_draw_mode_toggle" );
@@ -91,8 +146,8 @@ window.ScheduleInput.DrawSegmentIf = function( timelineElementId ) {
 
 
 /**
- * @param {HTMLElement} timelineElement - Timeline element
- * @param {Number} relativeX - Draw position
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element.
+ * @param {Number} relativeX - Draw position relative to timeline element.
  */
 window.ScheduleInput.DrawSegment = function( timelineElement, relativeX ) {
     if( timelineElement.getAttribute("disabled") == "true" ) {
@@ -101,30 +156,25 @@ window.ScheduleInput.DrawSegment = function( timelineElement, relativeX ) {
 
     //
 
-    const currentDrawSegElem = this.GetCurrentTimelineDrawnSegment( timelineElement );
+    let currentDrawSegElem = this.GetCurrentTimelineDrawnSegment( timelineElement );
+    const newTimeStart = this.GetTimestampAt( relativeX - 2 );
+    const newTimeEnd = this.GetTimestampAt( relativeX + 2 );
 
     if( currentDrawSegElem === null ) {
-        currentDrawSegElem = document.createElement("div");
-        currentDrawSegElem.classList.add( "current_timeline_draw_seg" );
-        currentDrawSegElem.style.width = "4px";
-        currentDrawSegElem.style.left = (relativeX-2)+"px";
-        timelineElement.appendChild( currentDrawSegElem );
+        currentDrawSegElem = this.AddSegment( timelineElement, newTimeStart, newTimeEnd );
+        currentDrawSegElem.classList.add("current_timeline_draw_seg");
 
         return;
     }
 
     let minX = currentDrawSegElem.offsetLeft;
     if( relativeX < minX ) {
-        const leftDiff = minX - relativeX + 2;
-        currentDrawSegElem.style.width = (currentDrawSegElem.offsetWidth + leftDiff)+"px";
-        minX = relativeX - 2;
-        currentDrawSegElem.style.left = minX+"px";
+        this.EditSegmentStart( currentDrawSegElem, newTimeStart );
     }
 
     let maxX = currentDrawSegElem.offsetWidth + minX;
     if( relativeX >= maxX ) {
-        maxX = relativeX + 2;
-        currentDrawSegElem.style.width = (maxX - minX)+"px";
+        this.EditSegmentEnd( currentDrawSegElem, newTimeEnd );
     }
 };
 
@@ -133,7 +183,7 @@ window.ScheduleInput.DrawSegment = function( timelineElement, relativeX ) {
 
 /**
  * @param {HTMLElement} timelineElement - Schedule component's timeline element.
- * @returns {object} Object (string SegTimeBeg, string SegTimeEnd) representing a timeline segment via
+ * @returns {object} - Object (string SegTimeBeg, string SegTimeEnd) representing a timeline segment via
  * min and max timestamps (as millisecond times since the epoch).
  */
 window.ScheduleInput.GetLatestTimeSegment = function( timelineElement ) {

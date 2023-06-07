@@ -2,17 +2,19 @@ window.ScheduleInput = window.ScheduleInput ?? {};
 
 
 
+////////////////
+
 /**
  * @param {string} componentElementId - Schedule component's id.
- * @returns {HTMLElement} Timeline elment of component.
+ * @returns {HTMLElement} - Timeline elment of component.
  */
 window.ScheduleInput.GetTimelineElementOfComponentElement = function( componentElementId ) {
     return document.getElementById( componentElementId+"_timeline" );
 };
 
 /**
- * @param {HTMLElement} timelineElement - Schedule component's timeline element
- * @returns {HTMLElement} Currently drawn segment (`null` if none).
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element.
+ * @returns {HTMLElement} - Currently drawn segment (`null` if none).
  */
 window.ScheduleInput.GetCurrentTimelineDrawnSegment = function( timelineElement ) {
     return timelineElement.querySelector( ".current_timeline_draw_seg" );
@@ -22,8 +24,8 @@ window.ScheduleInput.GetCurrentTimelineDrawnSegment = function( timelineElement 
 ////////////////
 
 /**
- * @param {string} componentElementId - Schedule container element id
- * @param {number} pixelsPerSecond - Scale of pixels per second of time
+ * @param {string} componentElementId - Schedule container element id.
+ * @param {number} pixelsPerSecond - Scale of pixels per second of time.
  */
 window.ScheduleInput.InitializeTimelineElement = function( componentElementId, pixelsPerSecond ) {
     const timelineElement = this.GetTimelineElementOfComponentElement( componentElementId );
@@ -35,8 +37,8 @@ window.ScheduleInput.InitializeTimelineElement = function( componentElementId, p
 ////////////////
 
 /**
- * @param {HTMLElement} timelineElement - Schedule component's timeline element
- * @param {number} pixelsPerSecond - Scale of pixels per second of time
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element.
+ * @param {number} pixelsPerSecond - Scale of pixels per second of time.
  */
 window.ScheduleInput.ZoomScheduleTimeScale = function( timelineElement, pixelsPerSecond ) {
     let datePosition = timelineElement.getAttribute( "current-timestamp" );
@@ -60,9 +62,9 @@ window.ScheduleInput.ZoomScheduleTimeScale = function( timelineElement, pixelsPe
  };
 
 /**
- * @param {HTMLElement} timelineElement - Schedule component's timeline element
- * @param {number} startDateMilliseconds - Start date
- * @param {number} pixelsPerSecond - Scale of pixels per second of time
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element.
+ * @param {number} startDateMilliseconds - Start date.
+ * @param {number} pixelsPerSecond - Scale of pixels per second of time.
  */
 window.ScheduleInput.ZoomScheduleTimeScaleWhenIf = function(
             timelineElement,
@@ -96,9 +98,9 @@ window.ScheduleInput.ZoomScheduleTimeScaleWhenIf = function(
 
 
 /**
- * @param {Element} componentElement - Schedule container element
- * @param {Date} startDate - Start date
- * @param {number} pixelsPerSecond - Scale of pixels per second of time
+ * @param {Element} componentElement - Schedule component's container element.
+ * @param {Date} startDate - Start date.
+ * @param {number} pixelsPerSecond - Scale of pixels per second of time.
  */
 window.ScheduleInput.PopulateScheduleYearsMarkers = function( componentElement, startDate, pixelsPerSecond ) {
     const containerWidth = componentElement.clientWidth;
@@ -136,9 +138,9 @@ window.ScheduleInput.PopulateScheduleYearsMarkers = function( componentElement, 
 };
 
 /**
- * @param {Element} componentElement - Shedule container element
- * @param {Date} startDate - Start date
- * @param {number} pixelsPerSecond - Scale of pixels per second of time
+ * @param {Element} componentElement - Schedule component's container element.
+ * @param {Date} startDate - Start date.
+ * @param {number} pixelsPerSecond - Scale of pixels per second of time.
  */
 window.ScheduleInput.PopulateScheduleMonthsMarkers = function( componentElement, startDate, pixelsPerSecond ) {
     const containerWidth = componentElement.clientWidth;
@@ -169,9 +171,9 @@ window.ScheduleInput.PopulateScheduleMonthsMarkers = function( componentElement,
 };
 
 /**
- * @param {Element} componentElement - Shedule container element
- * @param {Date} startDate - Start date
- * @param {number} pixelsPerSecond - Scale of pixels per second of time
+ * @param {Element} componentElement - Schedule component's container element.
+ * @param {Date} startDate - Start date.
+ * @param {number} pixelsPerSecond - Scale of pixels per second of time.
  */
 window.ScheduleInput.PopulateScheduleDaysMarkers = function( componentElement, startDate, pixelsPerSecond ) {
     const containerWidth = componentElement.clientWidth;
@@ -199,9 +201,9 @@ window.ScheduleInput.PopulateScheduleDaysMarkers = function( componentElement, s
 };
 
 /**
- * @param {Element} componentElement - Shedule container element
- * @param {Date} startDate - Start date
- * @param {number} pixelsPerSecond - Scale of pixels per second of time
+ * @param {Element} componentElement - Schedule component's container element.
+ * @param {Date} startDate - Start date.
+ * @param {number} pixelsPerSecond - Scale of pixels per second of time.
  */
 window.ScheduleInput.PopulateScheduleHoursMarkers = function( componentElement, startDate, pixelsPerSecond ) {
     const containerWidth = componentElement.clientWidth;
@@ -228,9 +230,9 @@ window.ScheduleInput.PopulateScheduleHoursMarkers = function( componentElement, 
 };
 
 /**
- * @param {Element} componentElement - Shedule container element
- * @param {Date} startDate - Start date
- * @param {number} pixelsPerSecond - Scale of pixels per second of time
+ * @param {Element} componentElement - Schedule component's container element.
+ * @param {Date} startDate - Start date.
+ * @param {number} pixelsPerSecond - Scale of pixels per second of time.
  */
 window.ScheduleInput.PopulateScheduleMinutesMarkers = function( componentElement, startDate, pixelsPerSecond ) {
     const containerWidth = componentElement.clientWidth;
@@ -259,8 +261,8 @@ window.ScheduleInput.PopulateScheduleMinutesMarkers = function( componentElement
 ////////////////
 
 /**
- * @param {Date} date - Given date
- * @returns {number} Count of days date's year currently has
+ * @param {Date} date - Given date.
+ * @returns {number} Count of days date's year currently has.
  */
 window.ScheduleInput.CountDaysElapsedOfDateYear = function( date ) {
     const incDate = new Date( date );
@@ -276,8 +278,8 @@ window.ScheduleInput.CountDaysElapsedOfDateYear = function( date ) {
 };
 
 /**
- * @param {Date} date - Given date
- * @returns {number} Count of seconds of date's day currently has
+ * @param {Date} date - Given date.
+ * @returns {number} Count of seconds of date's day currently has.
  */
 window.ScheduleInput.CountSecondsElapsedInDay = function(date) {
     const hours = date.getHours();
@@ -286,8 +288,8 @@ window.ScheduleInput.CountSecondsElapsedInDay = function(date) {
 };
 
 /**
- * @param {Date} date - Given date
- * @returns {number} Count of seconds of date's hour currently has
+ * @param {Date} date - Given date.
+ * @returns {number} Count of seconds of date's hour currently has.
  */
 window.ScheduleInput.CountSecondsElapsedInHour = function( date ) {
     const minutes = date.getMinutes();
@@ -296,8 +298,8 @@ window.ScheduleInput.CountSecondsElapsedInHour = function( date ) {
 }
 
 /**
- * @param {Date} date - Given date
- * @returns {number} Count of total days month can have
+ * @param {Date} date - Given date.
+ * @returns {number} Count of total days month can have.
  */
 window.ScheduleInput.GetDaysInMonth = function(date) {
     const newDate = new Date( date.getFullYear(), date.getMonth() + 1, 0 );
@@ -306,8 +308,8 @@ window.ScheduleInput.GetDaysInMonth = function(date) {
 };
 
 /**
- * @param {number} year - Given year
- * @returns {number} Count of total days year can have
+ * @param {number} year - Given year.
+ * @returns {number} Count of total days year can have.
  */
 window.ScheduleInput.GetDaysInYear = function( year ) {
     return ((year % 4 === 0 && year % 100 > 0) || year % 400 == 0) ? 366 : 365;
