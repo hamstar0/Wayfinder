@@ -84,6 +84,16 @@
 
     ////////////////
 
+    protected override void OnParametersSet() {
+        base.OnParametersSet();
+
+        if( !this.IsInitialized ) {
+            this.IsInitialized = true;
+
+            this.CurrentScheduleRaw = this.InitialSchedule;
+        }
+    }
+
     protected override async Task OnAfterRenderAsync( bool firstRender ) {
         if( !this.IsRendered ) {
             this.IsRendered = true;
@@ -98,16 +108,6 @@
                 //ts.TotalMilliseconds,
                 1d / 60d
             );
-        }
-    }
-
-    protected override void OnParametersSet() {
-        base.OnParametersSet();
-
-        if( !this.IsInitialized ) {
-            this.IsInitialized = true;
-
-            this.CurrentScheduleRaw = this.InitialSchedule;
         }
     }
 

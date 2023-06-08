@@ -314,3 +314,30 @@ window.ScheduleInput.GetDaysInMonth = function(date) {
 window.ScheduleInput.GetDaysInYear = function( year ) {
     return ((year % 4 === 0 && year % 100 > 0) || year % 400 == 0) ? 366 : 365;
 };
+
+
+////////////////
+
+/**
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element.
+ * @param {number} timestamp - Time (milliseconds since epoch).
+ * @returns {number} - X (left) position of timestamp within current timeline.
+ */
+window.ScheduleInput.GetElementPositionOfTimestamp = function( timelineElement, timestamp ) {
+    const startTimeMilliRaw = timelineElement.getAttribute( "current-timestamp" );
+    if( startTimeMilliRaw === null ) {
+        console.error( "No initial timestamp set for schedule timeline." );
+        return null;
+    }
+    const timeScaleRaw = timelineElement.getAttribute( "current-pixels-per-second" );
+    if( timeScaleRaw === null ) {
+        console.error( "No time scale set for schedule timeline." );
+        return null;
+    }
+
+    const startTimeMilli = window.parseInt( startTimeMilliRaw );
+    const timeScale = window.parseFloat( timeScaleRaw );
+    const timespan = timestamp - startTimeMilli;
+
+    return (timespan / 1000) * timeScale;
+};

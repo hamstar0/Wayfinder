@@ -21,6 +21,7 @@ window.ScheduleInput.AddSegment = function( timelineElement, timestampStart, tim
     const maxX = this.GetElementPositionOfTimestamp( timestampEnd );
 
     const elem = document.createElement( "div" );
+    elem.classList.add( "schedule-timeline-seg" );
     elem.style.width = (maxX - minX) + "px";
     elem.style.left = minX + "px";
     timelineElement.appendChild( elem );
@@ -162,7 +163,7 @@ window.ScheduleInput.DrawSegment = function( timelineElement, relativeX ) {
 
     if( currentDrawSegElem === null ) {
         currentDrawSegElem = this.AddSegment( timelineElement, newTimeStart, newTimeEnd );
-        currentDrawSegElem.classList.add("current_timeline_draw_seg");
+        currentDrawSegElem.classList.add( "schedule-timeline-seg-current" );
 
         return;
     }
@@ -228,7 +229,7 @@ window.ScheduleInput.ResetLatestTimeSegment = function( timelineElement ) {
         return;
     }
 
-    currentDrawSegElem.classList.remove( "current_timeline_draw_seg" );
+    currentDrawSegElem.classList.remove( "schedule-timeline-seg-current" );
 };
 
 

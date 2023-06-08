@@ -43,9 +43,13 @@
 
 /********/
 
-.current_timeline_draw_seg {
+.schedule-timeline-seg {
     position: absolute;
     height: 100%;
-    background-color: red;
+    background-color: grey;
     opacity: 0.2;
 }
+
+    .schedule-timeline-seg.schedule-timeline-seg-current {
+        background-color: red;
+    }
