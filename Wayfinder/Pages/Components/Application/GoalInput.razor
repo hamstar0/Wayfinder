@@ -11,7 +11,6 @@
 <div style="border:1px; border-style:solid;">
     <OptionsDynamicSingle ElementID='@($"{this.ElementID}_goal")'
             InlineLabel="Enter goal name"
-            InitialValue=@this.CurrentGoalRaw
             IsPickerOnly=false
             GetOptionsBySearch=this.GetGoalEntries_Async
             CanSubmitNewOption=this.CanSubmitNewGoal

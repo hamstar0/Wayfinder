@@ -19,9 +19,11 @@ v1
 		-	Add Delete button confirmation
 		-	Add buttons (Create, Update, Delete)
 	-	Implement term parent picker
-	-	Implement timeline seg pre-load from server (segs passed to Concept display and input)
+	-	@Test
+	-	Initialize schedule data when concept input has begun
 
 
+	-	Implement timeline seg pre-load from server (segs passed to Concept input)
 	-	Ensure time segs submit with correct timestamp
 -	Implement tabbed layout
 	-	Side bar

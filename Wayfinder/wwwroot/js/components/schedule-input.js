@@ -291,11 +291,11 @@ window.ScheduleInput.CountSecondsElapsedInDay = function(date) {
  * @param {Date} date - Given date.
  * @returns {number} Count of seconds of date's hour currently has.
  */
-window.ScheduleInput.CountSecondsElapsedInHour = function( date ) {
+window.ScheduleInput.CountSecondsElapsedInHour = function(date) {
     const minutes = date.getMinutes();
 
     return date.getSeconds() + (minutes * 60);
-}
+};
 
 /**
  * @param {Date} date - Given date.
@@ -340,4 +340,21 @@ window.ScheduleInput.GetElementPositionOfTimestamp = function( timelineElement, 
     const timespan = timestamp - startTimeMilli;
 
     return (timespan / 1000) * timeScale;
+};
+
+
+////////////////
+
+/**
+ * @param {string} componentElementId - Schedule component's id.
+ * @param {Array<Array<number>>} timelineEvents - Time segments.
+ */
+window.ScheduleInput.PopulateTimelineEvents = function( componentElementId, timelineEvents ) {
+    const timelineElem = this.GetTimelineElementOfComponentElement(componentElementId);
+
+    timelineElem.innerHTML = "";
+
+    for( let i = 0; i < timelineEvents.length; i++ ) {
+        this.AddSegment( timelineElem, timelineEvents[i][0], timelineEvents[i][1] );
+    }
 };

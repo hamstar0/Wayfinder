@@ -10,17 +10,11 @@
 
 
 <div style="border:1px; border-style:solid;">
-    <TermInput ElementID=@this.TermAElementID
-            InitialTermChoice=@this.InitialConcept?.TermA
-            @bind-CurrentTermSelectionRaw=this.TermARaw />
+    <TermInput ElementID=@this.TermAElementID @bind-CurrentTermSelectionRaw=this.TermARaw />
     is
-    <TermInput ElementID=@this.TermRelElementID
-            InitialTermChoice=@this.InitialConcept?.TermRel
-            @bind-CurrentTermSelectionRaw=this.TermBRaw />
+    <TermInput ElementID=@this.TermRelElementID @bind-CurrentTermSelectionRaw=this.TermBRaw />
     for
-    <TermInput ElementID=@this.TermBElementID
-            InitialTermChoice=@this.InitialConcept?.TermB
-            @bind-CurrentTermSelectionRaw=this.TermRelRaw />
+    <TermInput ElementID=@this.TermBElementID @bind-CurrentTermSelectionRaw=this.TermRelRaw />
 
     <label for="@this.IsFactElementID">Is fact?</label>
     <input type="checkbox"
@@ -45,9 +39,6 @@
 @code {
     [Parameter, EditorRequired]
     public string ElementID { get; set; } = null!;
-
-    [Parameter]
-    public ConceptEntry? InitialConcept { get; set; }
 
 
     private string TermAElementID => $"{this.ElementID}_term_a";
@@ -153,31 +144,8 @@
     public EventCallback<object?> CurrentConceptRawChanged { get; set; }
 
 
-    ////
-
-    private bool IsInitialized = false;
-
-
 
     ////////////////
-
-    protected override void OnParametersSet() {
-        base.OnParametersSet();
-        
-        if( !this.IsInitialized ) {
-            this.IsInitialized = true;
-
-            this.TermARaw = this.InitialConcept?.TermA;
-            this.TermBRaw = this.InitialConcept?.TermB;
-            this.TermRelRaw = this.InitialConcept?.TermRel;
-            this.IsFact = this.InitialConcept?.IsFact ?? false;
-            this.IsImpossible = this.InitialConcept?.IsImpossible ?? false;
-
-            this.CurrentConceptRaw = this.InitialConcept;
-        }
-    }
-
-    ////
 
     public bool CanSubmitNewConcept() {
 //Console.WriteLine( $"{this.CurrentConceptRaw is null} {this.TermARaw is not null} {this.TermBRaw is not null} {this.TermRelRaw is not null}" );

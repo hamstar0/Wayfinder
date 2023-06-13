@@ -14,7 +14,7 @@
 <div style="border:1px; border-style:solid;">
     <OptionsDynamicSingle ElementID='@($"{this.ElementID}_term")'
             InlineLabel="Enter term"
-            InitialValue=@(this.InitialTermChoice)
+            InitialValue=this.CurrentTermSelectionRaw
             IsPickerOnly=false
             GetOptionsBySearch=this.GetTermEntries_Async
             CanSubmitNewOption=this.CanSubmitNewTerm
@@ -27,9 +27,6 @@
 @code {
     [Parameter, EditorRequired]
     public string ElementID { get; set; } = null!;
-
-    [Parameter]
-    public TermEntry? InitialTermChoice { get; set; }
 
     ////
 
@@ -50,23 +47,6 @@
     public EventCallback<object?> CurrentTermSelectionRawChanged { get; set; }
 
 
-    ////
-
-    private bool IsInitialized = false;
-
-
-
-    ////////////////
-
-    protected override void OnParametersSet() {
-        base.OnParametersSet();
-
-        if( !this.IsInitialized ) {
-            this.IsInitialized = true;
-
-            this.CurrentTermSelectionRaw = this.InitialTermChoice;
-        }
-    }
 
     ////////////////
 
