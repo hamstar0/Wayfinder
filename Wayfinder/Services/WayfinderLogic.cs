@@ -1,4 +1,6 @@
-﻿using Wayfinder.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
+using Wayfinder.Data;
 using Wayfinder.Data.Models;
 
 namespace Wayfinder.Services;
@@ -11,26 +13,29 @@ public class WayfinderLogic {
     public bool IsInitialized => this.AnythingTerm is not null;
 
 
-    private ScheduleEntry? CurrentSchedule = null;
+    ////
+
+    private IDictionary<string, ConceptEntry> CurrentConcepts = new ConcurrentDictionary<string, ConceptEntry>();
+    private IDictionary<string, ScheduleEntry> CurrentSchedules = new ConcurrentDictionary<string, ScheduleEntry>();
 
 
 
     ////////////////
 
-    internal void InitializeData( WayfinderDbContext ctx ) {
-        TermEntry? anythingTerm = ctx.Terms.FirstOrDefault(
+    internal async Task InitializeData_Async( WayfinderDbContext ctx ) {
+        TermEntry? anythingTerm = await ctx.Terms.FirstOrDefaultAsync(
             t => t.Name == "Anything" && t.Context != null && t.Id == t.Context.Id
         );
 
         if( anythingTerm is null ) {
             anythingTerm = new TermEntry { Name = "Anything" };
 
-            ctx.Terms.Add( anythingTerm );
-            ctx.SaveChanges();
+            await ctx.Terms.AddAsync( anythingTerm );
+            await ctx.SaveChangesAsync();
 
             anythingTerm.Context = anythingTerm;
             ctx.Terms.Update( anythingTerm );
-            ctx.SaveChanges();
+            await ctx.SaveChangesAsync();
         }
 
         this.AnythingTerm = anythingTerm;
@@ -39,29 +44,47 @@ public class WayfinderLogic {
 
     ////////////////
 
-    private async Task<ScheduleEntry> GetOrInitCurrentSchedule( WayfinderDbContext ctx ) {
-        if( this.CurrentSchedule is null ) {
-            this.CurrentSchedule = new ScheduleEntry();
+    public async Task<ConceptEntry> GetOrInitConcept_Async( WayfinderDbContext ctx, string dataKey ) {
+        if( !this.CurrentConcepts.ContainsKey(dataKey) ) {
+            this.CurrentConcepts[dataKey] = new ConceptEntry();
+            this.CurrentConcepts[dataKey].Schedule = await this.GetOrInitSchedule_Async( ctx, dataKey );
 
-            await ctx.Schedules.AddAsync( this.CurrentSchedule );
+            await ctx.Concepts.AddAsync( this.CurrentConcepts[dataKey] );
         }
 
-        return this.CurrentSchedule;
+        return this.CurrentConcepts[dataKey];
     }
 
-    public async Task<ScheduleEntry> GetCurrentSchedule( WayfinderDbContext ctx ) {
-        return await this.GetOrInitCurrentSchedule( ctx );
+    public async Task<ScheduleEntry> GetOrInitSchedule_Async( WayfinderDbContext ctx, string dataKey ) {
+        if( !this.CurrentSchedules.ContainsKey(dataKey) ) {
+            this.CurrentSchedules[dataKey] = new ScheduleEntry();
+
+            await ctx.Schedules.AddAsync( this.CurrentSchedules[dataKey] );
+        }
+
+        return this.CurrentSchedules[dataKey];
     }
 
-    public async Task AddScheduleEvent(
+
+    ////
+
+    public void ClearConcept( string dataKey ) {
+        this.CurrentConcepts.Remove( dataKey );
+    }
+
+
+    ////
+
+    public async Task AddScheduleEvent_Async(
                 WayfinderDbContext ctx,
+                string dataKey,
                 DateTime startTime,
                 DateTime endTime,
                 double startPosX,
                 double startPosY,
                 double endPosX,
                 double endPosY ) {
-        var sched = await this.GetOrInitCurrentSchedule( ctx );
+        var sched = await this.GetOrInitSchedule_Async( ctx, dataKey );
 
         var myevent = new ScheduleEventEntry {
             StartTime = startTime,

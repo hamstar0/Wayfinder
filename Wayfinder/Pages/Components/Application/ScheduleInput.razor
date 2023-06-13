@@ -30,11 +30,6 @@
                 @onmouseleave=this.EndDraw
                 @onmouseup=this.EndDraw
                 @ref=this.TimelineElement>
-        @if( this.CurrentSchedule is not null ) {
-            @foreach( ScheduleEventEntry evt in this.CurrentSchedule.Events ) {
-                
-            }
-        }
     </div>
 </div>
 
@@ -50,10 +45,16 @@
     [Parameter, EditorRequired]
     public string ElementID { get; set; } = null!;
 
+    [Parameter, EditorRequired]
+    public string DataBinding { get; set; } = null!;
+
     [Parameter]
     public bool Disabled { get; set; } = false;
 
+
     ////
+
+    public ScheduleEntry? CurrentSchedule => this.CurrentScheduleRaw as ScheduleEntry?;
 
     [Parameter]
     public object? CurrentScheduleRaw {
@@ -67,8 +68,6 @@
     }
 
     private object? _CurrentScheduleRaw;
-
-    private ScheduleEntry? CurrentSchedule => this.CurrentScheduleRaw as ScheduleEntry?;
 
     [Parameter]
     public EventCallback<object?> CurrentScheduleRawChanged { get; set; }
@@ -103,7 +102,11 @@
             );
         }
 
-        if( this.CurrentSchedule is not null ) {
+        if( this._CurrentScheduleRaw is null ) {
+            this._CurrentScheduleRaw = await this.Logic.GetOrInitSchedule_Async( this.Data, this.DataBinding );
+        }
+
+        if( this.CurrentSchedule.Events.Count > 0 ) {
             await JS.InvokeVoidAsync(
                 "window.ScheduleInput.PopulateTimelineEvents",
                 this.ElementID,
@@ -112,6 +115,8 @@
                     .ToArray()
             );
         }
+
+        return await base.OnAfterRenderAsync( firstRender );
     }
 
     ////
@@ -173,7 +178,7 @@
         long segTimeBegMilli = long.Parse( segRaw.SegTimeBeg ) * TimeSpan.TicksPerMillisecond;
         long segTimeEndMilli = long.Parse( segRaw.SegTimeEnd ) * TimeSpan.TicksPerMillisecond;
         
-        await this.Logic.AddScheduleEvent(
+        await this.Logic.AddScheduleEvent_Async(
             ctx: this.Data,
             startTime: WayfinderDbContext.EpochMillisecondsToDateTime( segTimeBegMilli ),
             endTime: WayfinderDbContext.EpochMillisecondsToDateTime( segTimeEndMilli ),

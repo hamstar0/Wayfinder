@@ -34,7 +34,7 @@ var app = builder.Build();
     if( !logic.IsInitialized ) {
         var ctx = scope.ServiceProvider.GetRequiredService<WayfinderDbContext>();
 
-        logic.InitializeData( ctx );
+        await logic.InitializeData_Async( ctx );
     }
 }
 

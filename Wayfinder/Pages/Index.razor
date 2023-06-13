@@ -34,14 +34,9 @@
             <p>Goals, as per the name, are end points of specific life endeavors. These are defined as a minimalistic
                 piece of data representing an as-yet-unimplemented future state of being of a given thing.
             </p>
-            <ConceptInput ElementID="current_goal_concept"
-                    @bind-CurrentConceptRaw=this.CurrentGoalConceptRaw
-                    CurrentScheduleRaw=this.CurrentGoalScheduleRaw />
-            <ScheduleInput ElementID="current_goal_concept_schedule"
-                    @bind-CurrentScheduleRaw=this.CurrentGoalScheduleRaw />
-            <GoalInput ElementID="current_goal"
-                    @bind-CurrentGoalRaw=this.CurrentGoalRaw
-                    CurrentConceptRaw=this.CurrentGoalConceptRaw />
+            <ConceptInput ElementID="current_goal_concept" DataBinding="current_goal" />
+            <ScheduleInput ElementID="current_goal_concept_schedule" DataBinding="current_goal" />
+            <GoalInput ElementID="current_goal" DataBinding="current_goal" />
         </div>
 
         <div class="tab-content">
@@ -49,11 +44,8 @@
             <p>Plans are a sequence of sub-goals (&nbsp;as-yet-unimplemented states of being&nbsp;) that lead
                 sequentially to the implementation of a given end-goal. They may be built with branching paths,
                 or outright exist as speculative or virtual scenarios.</p>
-            <ConceptInput ElementID="current_plan_concept"
-                    @bind-CurrentConceptRaw=this.CurrentPlanConceptRaw
-                    CurrentScheduleRaw=this.CurrentPlanScheduleRaw />
-            <ScheduleInput ElementID="current_plan_concept_schedule"
-                    @bind-CurrentScheduleRaw=this.CurrentPlanScheduleRaw />
+            <ConceptInput ElementID="current_plan_concept" DataBinding="current_plan" />
+            <ScheduleInput ElementID="current_plan_concept_schedule" DataBinding="current_plan" />
             @*<PlanStepsInput ElementID="current_plan"
                     CurrentGoalRaw=this.CurrentGoalRaw
                     CurrentConceptRaw=this.CurrentPlanConceptRaw
@@ -65,13 +57,9 @@
             <p>To give meaning to goals and their respective plans for implementation, knowledge is needed about
                 the state of being of each pertinant thing of relevance. This semi-automated data entry process
                 will allow for quickly supplying said knowledge, as needed.</p>
-            <ConceptInput ElementID="current_data_concept"
-                    @bind-CurrentConceptRaw=this.CurrentDataConceptRaw
-                    CurrentScheduleRaw=this.CurrentDataScheduleRaw />
-            <ScheduleInput ElementID="current_data_concept_schedule"
-                    @bind-CurrentScheduleRaw=this.CurrentDataScheduleRaw />
-            @*<KnowledgeInput ElementID="current_data"
-                    CurrentConceptRaw=@this.CurrentDataConceptRaw />*@
+            <ConceptInput ElementID="current_guess_concept" DataBinding="current_guess" />
+            <ScheduleInput ElementID="current_guess_concept_schedule" DataBinding="current_plan" />
+            @*<KnowledgeInput ElementID="current_guess" />*@
         </div>
     </div>
 </div>

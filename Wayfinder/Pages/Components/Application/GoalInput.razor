@@ -5,6 +5,7 @@
 
 
 @inject Wayfinder.Data.WayfinderDbContext Data;
+@inject Wayfinder.Services.WayfinderLogic Logic;
 
 
 
@@ -31,20 +32,8 @@
     public string ElementID { get; set; } = null!;
 
     [Parameter, EditorRequired]
-    public object? CurrentConceptRaw {
-        get => this._CurrentConceptRaw;
-        set {
-            if( this._CurrentConceptRaw != value ) {
-                this.CurrentGoalRaw = null;
-            }
-            this._CurrentConceptRaw = value;
-        }
-    }
+    public string DataBinding { get; set; } = null!;
 
-    private object? _CurrentConceptRaw;
-
-    [Parameter]
-    public EventCallback<object?> CurrentConceptRawChanged { get; set; }
 
     ////
 
@@ -68,7 +57,7 @@
 
     ////////////////
 
-    public async Task<IList<object>> GetGoalEntries_Async( string search ) {
+    private async Task<IList<object>> GetGoalEntries_Async( string search ) {
         return await Task.Run<IList<object>>(
             () => this.Data.Goals
                 .Where( g => g.Name.Contains(search) )
@@ -78,8 +67,8 @@
     }
 
 
-    public bool CanSubmitNewGoal( string newOption, object? currentOption ) {
-        if( this.CurrentConceptRaw is null ) {
+    public bool CanSubmitNewGoal( string newOption, object? currentOptionRaw ) {
+        if( this.Logic.GetOrInitConcept_Async(this.Data, this.DataBinding) is null ) {
             return false;
         }
 
@@ -87,9 +76,9 @@
             return false;
         }
 
-        return currentOption is null
+        return currentOptionRaw is null
             ? true
-            : newOption != currentOption.ToString();
+            : newOption != currentOptionRaw.ToString();
     }
 
 
@@ -100,7 +89,7 @@
 
         var newGoal = new GoalEntry {
             Name = newGoalName,
-            Needed = this.CurrentConceptRaw as ConceptEntry
+            Needed = await this.Logic.GetOrInitConcept_Async(this.Data, this.DataBinding)
         };
 
         await this.Data.Goals.AddAsync( newGoal );

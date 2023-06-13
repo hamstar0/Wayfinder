@@ -20,9 +20,12 @@ v1
 		-	Add buttons (Create, Update, Delete)
 	-	Implement term parent picker
 	-	@Test
+
+
 	-	Initialize schedule data when concept input has begun
-
-
+		-	On concept submit, generate a new schedule for the associated input
+		-	Apply current schedule entry on concept load, if no concept defined
+		-	Create 'current' schedule entry for each schedule input
 	-	Implement timeline seg pre-load from server (segs passed to Concept input)
 	-	Ensure time segs submit with correct timestamp
 -	Implement tabbed layout

@@ -6,6 +6,7 @@
 
 @inject IJSRuntime JS;
 @inject Wayfinder.Data.WayfinderDbContext Data;
+@inject Wayfinder.Services.WayfinderLogic Logic;
 
 
 
@@ -39,32 +40,17 @@
 @code {
     [Parameter, EditorRequired]
     public string ElementID { get; set; } = null!;
+    
+    [Parameter, EditorRequired]
+    public string DataBinding { get; set; } = null!;
 
+    ////
 
     private string TermAElementID => $"{this.ElementID}_term_a";
     private string TermBElementID => $"{this.ElementID}_term_b";
     private string TermRelElementID => $"{this.ElementID}_term_rel";
     private string IsFactElementID => $"{this.ElementID}_isfact";
     private string IsImpossibleElementID => $"{this.ElementID}_isimpossible";
-
-    ////
-
-    [Parameter, EditorRequired]
-    public object? CurrentScheduleRaw {
-        get => this._CurrentScheduleRaw;
-        set {
-            if( this._CurrentScheduleRaw != value ) {
-                this.CurrentScheduleRawChanged.InvokeAsync( value );
-            }
-            this._CurrentScheduleRaw = value;
-        }
-    }
-
-    private object? _CurrentScheduleRaw;
-
-    [Parameter]
-    public EventCallback<object?> CurrentScheduleRawChanged { get; set; }
-
 
 
     ////
@@ -119,11 +105,23 @@
         }
     }
 
+    public object? ScheduleRaw {
+        get => this._ScheduleRaw;
+        set {
+            if( this._ScheduleRaw != value ) {
+                this.CurrentConceptRaw = null;
+            }
+            this._ScheduleRaw = value;
+        }
+    }
+
     private object? _TermARaw;
     private object? _TermBRaw;
     private object? _TermRelRaw;
     private bool _IsFact;
     private bool _IsImpossible;
+    private object? _ScheduleRaw;
+
 
     ////
 
@@ -133,6 +131,17 @@
         set {
             if( this._CurrentConceptRaw != value ) {
                 this.CurrentConceptRawChanged.InvokeAsync( value );
+
+                if( value is not null ) {
+                    var concept = value as ConceptEntry;
+
+                    this._TermARaw = concept.TermARaw;
+                    this._TermBRaw = concept.TermBRaw;
+                    this._TermRelRaw = concept.TermRelRaw;
+                    this._IsFact = concept.IsFact;
+                    this._IsImpossible = concept.IsImpossible;
+                    this._ScheduleRaw = concept.Schedule;
+                }
             }
             this._CurrentConceptRaw = value;
         }
@@ -147,12 +156,29 @@
 
     ////////////////
 
+    protected async override Task OnAfterRenderAsync( bool firstRender ) {
+        this._CurrentConceptRaw = await this.Logic.GetOrInitConcept_Async( this.Data, this.DataBinding );
+        this._TermARaw = this._CurrentConceptRaw?.TermARaw;
+        this._TermBRaw = this._CurrentConceptRaw?.TermBRaw;
+        this._TermRelRaw = this._CurrentConceptRaw?.TermRelRaw;
+        this._IsFact = this._CurrentConceptRaw?.IsFact ?? this._IsFact;
+        this._IsImpossible = this._CurrentConceptRaw?.IsImpossible ?? this._IsFact;
+        this._ScheduleRaw = this._CurrentConceptRaw?.Schedule ??
+            await this.Logic.GetOrInitSchedule_Async( this.Data, this.DataBinding );
+
+        return await base.OnAfterRenderAsync( firstRender );
+    }
+
+
+    ////////////////
+
     public bool CanSubmitNewConcept() {
-//Console.WriteLine( $"{this.CurrentConceptRaw is null} {this.TermARaw is not null} {this.TermBRaw is not null} {this.TermRelRaw is not null}" );
+        //Console.WriteLine( $"{this.CurrentConceptRaw is null} {this.TermARaw is not null} {this.TermBRaw is not null} {this.TermRelRaw is not null}" );
         return this.CurrentConceptRaw is null &&
             this.TermARaw is not null &&
             this.TermBRaw is not null &&
-            this.TermRelRaw is not null;
+            this.TermRelRaw is not null &&
+            this.ScheduleRaw is not null;
     }
 
     ////
@@ -168,7 +194,7 @@
             TermRel = this.TermRelRaw as TermEntry,
             IsFact = this.IsFact,
             IsImpossible = this.IsImpossible,
-            Schedule = this.CurrentScheduleRaw as ScheduleEntry
+            Schedule = this.ScheduleRaw as ScheduleEntry
         };
 
         await this.Data.Concepts.AddAsync( newConcept );
@@ -177,6 +203,8 @@
 
         if( rowsChanged == 1 ) {
             this.CurrentConceptRaw = newConcept;
+
+            this.Logic.ClearConcept( this.DataBinding );
         } else {
             this.CurrentConceptRaw = null;
 
