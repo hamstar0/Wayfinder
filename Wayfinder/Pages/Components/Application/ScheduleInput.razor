@@ -1,5 +1,6 @@
 ﻿@using Wayfinder.Data;
 @using Wayfinder.Data.Models;
+@using Wayfinder.Pages.Components.Controls;
 
 
 @namespace Wayfinder.Pages.Components.Application
@@ -54,7 +55,10 @@
 
     ////
 
-    public ScheduleEntry? CurrentSchedule => this.CurrentScheduleRaw as ScheduleEntry?;
+    public ScheduleEntry? CurrentSchedule {
+        get => (ScheduleEntry?)this._CurrentScheduleRaw;
+        set => this.CurrentScheduleRaw = value;
+    }
 
     [Parameter]
     public object? CurrentScheduleRaw {
@@ -102,8 +106,8 @@
             );
         }
 
-        if( this._CurrentScheduleRaw is null ) {
-            this._CurrentScheduleRaw = await this.Logic.GetOrInitSchedule_Async( this.Data, this.DataBinding );
+        if( this.CurrentSchedule is null ) {
+            this.CurrentSchedule = await this.Logic.GetOrInitSchedule_Async( this.Data, this.DataBinding );
         }
 
         if( this.CurrentSchedule.Events.Count > 0 ) {
@@ -111,12 +115,15 @@
                 "window.ScheduleInput.PopulateTimelineEvents",
                 this.ElementID,
                 this.CurrentSchedule.Events
-                    .Select( e => new int[] { e.StartTime, e.EndTime } )
+                    .Select( e => new long[] {
+                        WayfinderDbContext.ConvertToTimestamp( e.StartTime ),
+                        WayfinderDbContext.ConvertToTimestamp( e.EndTime )
+                    } )
                     .ToArray()
             );
         }
 
-        return await base.OnAfterRenderAsync( firstRender );
+        await base.OnAfterRenderAsync( firstRender );
     }
 
     ////
@@ -180,12 +187,13 @@
         
         await this.Logic.AddScheduleEvent_Async(
             ctx: this.Data,
+            dataKey: this.DataBinding,
             startTime: WayfinderDbContext.EpochMillisecondsToDateTime( segTimeBegMilli ),
             endTime: WayfinderDbContext.EpochMillisecondsToDateTime( segTimeEndMilli ),
             startPosX: 0,
             startPosY: 0,
             endPosX: 0,
-            endPosY: 0,
+            endPosY: 0
         );
     }
 }

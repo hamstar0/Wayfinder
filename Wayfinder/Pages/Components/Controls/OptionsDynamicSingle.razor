@@ -37,7 +37,7 @@
 
             <ul id="@this.DropdownElementID" class="dropdown-menu">
                 @foreach( object entry in this.CurrentSearchOptions ) {
-                    <li class="dropdown-item" @onclick=@( async () => await this.SelectSearchOption_Async(entry) )>
+                    <li class="dropdown-item" @onclick=@( () => this.SelectSearchOption_Async(entry) )>
                         @entry.ToString()
                     </li>
                 }
@@ -179,7 +179,7 @@
         }
     }
 
-    private async Task SelectSearchOption_Async( object? option ) {
+    private void SelectSearchOption_Async( object? option ) {
         this.InputValue = option?.ToString() ?? "";
         this.CurrentOptionSelection = option;
     }

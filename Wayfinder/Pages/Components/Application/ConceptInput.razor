@@ -40,7 +40,7 @@
 @code {
     [Parameter, EditorRequired]
     public string ElementID { get; set; } = null!;
-    
+
     [Parameter, EditorRequired]
     public string DataBinding { get; set; } = null!;
 
@@ -133,11 +133,11 @@
                 this.CurrentConceptRawChanged.InvokeAsync( value );
 
                 if( value is not null ) {
-                    var concept = value as ConceptEntry;
+                    var concept = (ConceptEntry)value;
 
-                    this._TermARaw = concept.TermARaw;
-                    this._TermBRaw = concept.TermBRaw;
-                    this._TermRelRaw = concept.TermRelRaw;
+                    this._TermARaw = concept.TermA;
+                    this._TermBRaw = concept.TermB;
+                    this._TermRelRaw = concept.TermRel;
                     this._IsFact = concept.IsFact;
                     this._IsImpossible = concept.IsImpossible;
                     this._ScheduleRaw = concept.Schedule;
@@ -157,16 +157,18 @@
     ////////////////
 
     protected async override Task OnAfterRenderAsync( bool firstRender ) {
-        this._CurrentConceptRaw = await this.Logic.GetOrInitConcept_Async( this.Data, this.DataBinding );
-        this._TermARaw = this._CurrentConceptRaw?.TermARaw;
-        this._TermBRaw = this._CurrentConceptRaw?.TermBRaw;
-        this._TermRelRaw = this._CurrentConceptRaw?.TermRelRaw;
-        this._IsFact = this._CurrentConceptRaw?.IsFact ?? this._IsFact;
-        this._IsImpossible = this._CurrentConceptRaw?.IsImpossible ?? this._IsFact;
-        this._ScheduleRaw = this._CurrentConceptRaw?.Schedule ??
+        ConceptEntry concept = await this.Logic.GetOrInitConcept_Async( this.Data, this.DataBinding );
+
+        this._CurrentConceptRaw = concept;
+        this._TermARaw = concept?.TermA;
+        this._TermBRaw = concept?.TermB;
+        this._TermRelRaw = concept?.TermRel;
+        this._IsFact = concept?.IsFact ?? this._IsFact;
+        this._IsImpossible = concept?.IsImpossible ?? this._IsFact;
+        this._ScheduleRaw = concept?.Schedule ??
             await this.Logic.GetOrInitSchedule_Async( this.Data, this.DataBinding );
 
-        return await base.OnAfterRenderAsync( firstRender );
+        await base.OnAfterRenderAsync( firstRender );
     }
 
 
@@ -189,16 +191,16 @@
         }
 
         var newConcept = new ConceptEntry {
-            TermA = this.TermARaw as TermEntry,
-            TermB = this.TermBRaw as TermEntry,
-            TermRel = this.TermRelRaw as TermEntry,
+            TermA = (TermEntry)(this.TermARaw ?? throw new NullReferenceException()),
+            TermB = (TermEntry)(this.TermBRaw ?? throw new NullReferenceException()),
+            TermRel = (TermEntry)(this.TermRelRaw ?? throw new NullReferenceException()),
             IsFact = this.IsFact,
             IsImpossible = this.IsImpossible,
-            Schedule = this.ScheduleRaw as ScheduleEntry
+            Schedule = (ScheduleEntry)(this.ScheduleRaw ?? throw new NullReferenceException())
         };
 
         await this.Data.Concepts.AddAsync( newConcept );
-
+        
         int rowsChanged = await this.Data.SaveChangesAsync();
 
         if( rowsChanged == 1 ) {

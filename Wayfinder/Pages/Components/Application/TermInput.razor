@@ -1,6 +1,7 @@
 ﻿@using Microsoft.Data.SqlClient;
 @using Microsoft.EntityFrameworkCore;
 @using Wayfinder.Data.Models;
+@using Wayfinder.Pages.Components.Controls;
 
 
 @namespace Wayfinder.Pages.Components.Application
@@ -19,7 +20,7 @@
             GetOptionsBySearch=this.GetTermEntries_Async
             CanSubmitNewOption=this.CanSubmitNewTerm
             OnSubmitNewOptionIf=this.SubmitNewTerm_Async
-            @bind-CurrentOptionSelection=this.CurrentTermSelectionRaw></OptionsDynamicSingle>
+            @bind-CurrentOptionSelection=@this.CurrentTermSelectionRaw></OptionsDynamicSingle>
 </div>
 
 

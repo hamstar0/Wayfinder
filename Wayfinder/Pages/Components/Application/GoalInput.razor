@@ -1,4 +1,5 @@
 ﻿@using Wayfinder.Data.Models;
+@using Wayfinder.Pages.Components.Controls;
 
 
 @namespace Wayfinder.Pages.Components.Application
@@ -16,7 +17,7 @@
             GetOptionsBySearch=this.GetGoalEntries_Async
             CanSubmitNewOption=this.CanSubmitNewGoal
             OnSubmitNewOptionIf=this.SubmitNewGoal_Async
-            @bind-CurrentOptionSelection=this.CurrentGoalRaw></OptionsDynamicSingle>
+            @bind-CurrentOptionSelection=@this.CurrentGoalRaw></OptionsDynamicSingle>
     @* <button type="button"
             class="input-group-btn btn"
             disabled=@(this.CanSubmitGoal() == false)

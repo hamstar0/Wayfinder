@@ -9,7 +9,7 @@
                     id='@($"{this.ElementID}_{value}_any")'
                     name='@($"{this.ElementID}_any")'
                     class="btn btn-secondary"
-                    @onchange=@( e => this.OnChanged(value, (bool)e.Value) )>
+                    @onchange=@( e => this.OnChanged(value, (bool)(e?.Value ?? false)) )>
             <label for='@($"{this.ElementID}_{value}_any")'>@label</label>
         }
     }
