@@ -9,6 +9,7 @@
                     id='@($"{this.ElementID}_{value}_any")'
                     name='@($"{this.ElementID}_any")'
                     class="btn btn-secondary"
+                    disabled=@this.Disabled
                     @onchange=@( e => this.OnChanged(value, (bool)(e?.Value ?? false)) )>
             <label for='@($"{this.ElementID}_{value}_any")'>@label</label>
         }
@@ -45,6 +46,11 @@
 
     [Parameter]
     public EventCallback<ISet<string>> CurrentOptionsChanged { get; set; }
+
+    ////
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
 
 
 

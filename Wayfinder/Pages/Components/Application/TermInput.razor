@@ -17,6 +17,7 @@
             InlineLabel="Enter term"
             InitialValue=this.CurrentTermSelectionRaw
             IsPickerOnly=false
+            Disabled=this.Disabled
             GetOptionsBySearch=this.GetTermEntries_Async
             CanSubmitNewOption=this.CanSubmitNewTerm
             OnSubmitNewOptionIf=this.SubmitNewTerm_Async
@@ -46,6 +47,9 @@
 
     [Parameter]
     public EventCallback<object?> CurrentTermSelectionRawChanged { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
 
 
 

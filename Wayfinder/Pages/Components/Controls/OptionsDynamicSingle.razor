@@ -14,7 +14,7 @@
         @if( !this.IsPickerOnly ) {
             <button type="button"
                     class="input-group-btn btn"
-                    disabled=@( this.CanSubmitNewOption(this.InputValue, this.CurrentOptionSelection) == false )
+                    disabled=@( this.Disabled || this.CanSubmitNewOption(this.InputValue, this.CurrentOptionSelection) == false )
                     @onclick=this.SubmitNewOption_Async>
                 @(this.Label is not null ? this.Label : "Create")
             </button>
@@ -24,6 +24,7 @@
                class="form-control"
                style="border-left:none;"
                placeholder='@(this.InlineLabel ?? "")'
+               disabled=@this.Disabled
                @bind-value=@this.InputValue
                @oninput=@( async e => await this.ChangeInputValue_Async(e.Value as string ?? "") ) />
 
@@ -31,13 +32,19 @@
             <button type="button"
                     class="btn dropdown-toggle"
                     style="background-color:white; border-right:none;"
+                    disabled=@this.Disabled
                     data-bs-toggle="dropdown">
                 <span class="caret"></span>
             </button>
 
+            @code {
+                private string DropdownListItemClass => this.Disabled
+                    ? "dropdown-item disabled"
+                    : "dropdown-item";
+            }
             <ul id="@this.DropdownElementID" class="dropdown-menu">
                 @foreach( object entry in this.CurrentSearchOptions ) {
-                    <li class="dropdown-item" @onclick=@( () => this.SelectSearchOption_Async(entry) )>
+                    <li class="@this.DropdownListItemClass" @onclick=@( () => this.SelectSearchOption_Async(entry) )>
                         @entry.ToString()
                     </li>
                 }
@@ -121,11 +128,17 @@
 
     ////
 
-    private IList<object> CurrentSearchOptions = new List<object>();
+    [Parameter]
+    public bool Disabled { get; set; } = false;
 
 
     ////
 
+    private IList<object> CurrentSearchOptions = new List<object>();
+
+
+    ////
+    
     private bool IsInitialized = false;
 
 
@@ -180,6 +193,10 @@
     }
 
     private void SelectSearchOption_Async( object? option ) {
+        if( this.Disabled ) {
+            return;
+        }
+
         this.InputValue = option?.ToString() ?? "";
         this.CurrentOptionSelection = option;
     }
