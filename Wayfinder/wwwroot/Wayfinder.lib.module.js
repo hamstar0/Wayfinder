@@ -22,3 +22,15 @@ window.CallAJAX = function( url, dataObject, onReceive ) {
     xhttp.open( "POST", url, true );
     xhttp.send( JSON.stringify(dataObject) );
 };
+
+
+////
+
+export function afterStarted( blazor ) {
+    //.registerCustomEventType( "onmouseenter", {
+    //    createEventArgs: (e) => {}
+    //});
+    blazor.registerCustomEventType( "onmouseleave", {
+        createEventArgs: (e) => {}
+    });
+}
