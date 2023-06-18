@@ -40,7 +40,6 @@ window.ScheduleInput.EditSegmentStart = function( timeSegmentElement, newTimesta
     const diff = oldMinX - newMinX;
     const newWid = timeSegmentElement.offsetWidth + diff;
     timeSegmentElement.style.width = newWid + "px";
-
     timeSegmentElement.style.left = newMinX +"px";
 };
 
@@ -48,7 +47,7 @@ window.ScheduleInput.EditSegmentStart = function( timeSegmentElement, newTimesta
  * @param {HTMLElement} timeSegmentElement - Timeline segment element.
  * @param {number} newTimestampEnd - End time (milliseconds since epoch).
  */
-window.ScheduleInput.EditSegmentEnd = function( timelineElement, newTimestampEnd ) {
+window.ScheduleInput.EditSegmentEnd = function( timeSegmentElement, newTimestampEnd ) {
     const newMaxX = this.GetElementPositionOfTimestamp( newTimestampEnd );
     const oldMaxX = timeSegmentElement.offsetLeft + timeSegmentElement.offsetWidth;
 
@@ -61,16 +60,16 @@ window.ScheduleInput.EditSegmentEnd = function( timelineElement, newTimestampEnd
 ////////////////
 
 /**
- * @param {string} timelineElementId - Timeline component element id.
+ * @param {string} componentElementId - Timeline component element id.
  */
-window.ScheduleInput.BeginDrawingSegment = function( timelineElementId ) {
-    let intervalId = timelineElementId in this.MouseOverIntervalIds
-        ? this.MouseOverIntervalIds[ timelineElementId ]
+window.ScheduleInput.BeginDrawingSegment = function( componentElementId ) {
+    let intervalId = this.MouseOverIntervalIds.hasOwnProperty( componentElementId )
+        ? this.MouseOverIntervalIds[ componentElementId ]
         : "";
 
     window.clearInterval( intervalId );
 
-    this.MouseOverIntervalIds[ timelineElementId ] = window.setInterval( () => {
+    this.MouseOverIntervalIds[ componentElementId ] = window.setInterval( () => {
         this.DrawSegmentIf( componentElementId );
     }, 50);
 };
@@ -80,14 +79,18 @@ window.ScheduleInput.BeginDrawingSegment = function( timelineElementId ) {
  * @returns {object} - Object (SegTimeBeg, SegTimeEnd) representing a timeline segment via min and max timestamps
  * (as strings).
  */
-window.ScheduleInput.EndDrawingSegment = function( componentElementId ) {
-    const intervalId = this.MouseOverIntervalIds[ componentElementId ];
+window.ScheduleInput.EndDrawingSegmentIf = function( componentElementId ) {
+    let intervalId = this.MouseOverIntervalIds.hasOwnProperty( componentElementId )
+        ? this.MouseOverIntervalIds[ componentElementId ]
+        : "";
 
-    window.clearInterval( intervalId ?? "" );
+    window.clearInterval( intervalId );
 
-    if( intervalId != null ) {
-        delete this.MouseOverIntervalIds[ componentElementId ];
+    if( intervalId === "" ) {
+        return null;
     }
+
+    delete this.MouseOverIntervalIds[ componentElementId ];
 
     //
 
@@ -108,18 +111,18 @@ window.ScheduleInput.EndDrawingSegment = function( componentElementId ) {
 ////
 
 /**
- * @param {string} timelineElementId - Timeline component element id.
+ * @param {string} componentElementId - Timeline component element id.
  */
-window.ScheduleInput.DrawSegmentIf = function( timelineElementId ) {
-    const switchElem = document.getElementById( timelineElementId+"_draw_mode_toggle" );
+window.ScheduleInput.DrawSegmentIf = function( componentElementId ) {
+    const switchElem = document.getElementById( componentElementId+"_draw_mode_toggle" );
     if( switchElem === null ) {
-        console.error( "No schedule mode switch element found ("+timelineElementId+"_draw_mode_toggle)" );
+        console.error( "No schedule mode switch element found ("+componentElementId+"_draw_mode_toggle)" );
         return;
     }
 
-    const timelineElement = this.GetTimelineElementOfComponentElement( timelineElementId );
+    const timelineElement = this.GetTimelineElementOfComponentElement( componentElementId );
     if( timelineElement === null ) {
-        console.error( "No schedule timeline element found ("+timelineElementId+"_timeline)" );
+        console.error( "No schedule timeline element found ("+componentElementId+"_timeline)" );
         return;
     }
 
@@ -212,10 +215,10 @@ window.ScheduleInput.GetLatestTimeSegment = function( timelineElement ) {
 
     const secondsStart = minX * timeScale;
     const secondsEnd = (minX + wid) * timeScale;
-
+    
     return {
-        SegTimeBeg = Math.round( startTimeMilli + (secondsStart * 1000) ).toString(),
-        SegTimeEnd = Math.round( startTimeMilli + (secondsEnd * 1000) ).toString()
+        SegTimeBeg: Math.round( startTimeMilli + (secondsStart * 1000) ),  //.toString(),
+        SegTimeEnd: Math.round( startTimeMilli + (secondsEnd * 1000) )     //.toString()
     };
 };
 

@@ -28,8 +28,8 @@
                 class="schedule-component"
                 disabled=@this.Disabled
                 @onmousedown=this.BeginDraw
-                @onmouseleave=this.EndDraw
-                @onmouseup=this.EndDraw
+                @onmouseleave=this.EndDrawIf
+                @onmouseup=this.EndDrawIf
                 @ref=this.TimelineElement>
     </div>
 </div>
@@ -82,37 +82,17 @@
     private ElementReference TimelineElement;
 
 
-    ////
-
-    private bool IsRendered = false;
-
-
 
     ////////////////
 
     protected override async Task OnAfterRenderAsync( bool firstRender ) {
-        if( !this.IsRendered ) {
-            this.IsRendered = true;
-
-            //var d1 = new DateTime( 1970, 1, 1 );
-            //var d2 = DateTime.UtcNow;  //TheDate.ToUniversalTime();
-            //var ts = new TimeSpan( d2.Ticks - d1.Ticks );
-
-            await JS.InvokeVoidAsync(
-                "window.ScheduleInput.InitializeTimelineElement",
-                this.ElementID,
-                //ts.TotalMilliseconds,
-                1d / 60d
-            );
-        }
-
         if( this.CurrentSchedule is null ) {
             this.CurrentSchedule = await this.Logic.GetOrInitSchedule_Async( this.Data, this.DataBinding );
         }
 
-        if( this.CurrentSchedule.Events.Count > 0 ) {
+        if( this.CurrentSchedule.Events is not null && this.CurrentSchedule.Events.Count > 0 ) {
             await JS.InvokeVoidAsync(
-                "window.ScheduleInput.PopulateTimelineEvents",
+                "ScheduleInput.PopulateTimelineEvents",
                 this.ElementID,
                 this.CurrentSchedule.Events
                     .Select( e => new long[] {
@@ -161,7 +141,7 @@
         }
 
         await JS.InvokeVoidAsync(
-            "window.ScheduleInput.ZoomScheduleTimeScale",
+            "ScheduleInput.ZoomScheduleTimeScale",
             this.TimelineElement,
             zoomScale
         );
@@ -171,25 +151,31 @@
 
     private async Task BeginDraw() {
         await JS.InvokeVoidAsync(
-            "window.ScheduleInput.BeginDrawingSegment",
-            this.TimelineElement
+            "ScheduleInput.BeginDrawingSegment",
+            this.ElementID
         );
     }
 
-    private async Task EndDraw() {
-        var segRaw = await JS.InvokeAsync<(string SegTimeBeg, string SegTimeEnd)>(
-            "window.ScheduleInput.EndDrawingSegment",
-            this.TimelineElement
+    public record SegTime( long SegTimeBeg, long SegTimeEnd );
+
+    private async Task EndDrawIf() {
+        var segRaw = await JS.InvokeAsync<SegTime>(
+            "ScheduleInput.EndDrawingSegmentIf",
+            this.ElementID
         );
 
-        long segTimeBegMilli = long.Parse( segRaw.SegTimeBeg ) * TimeSpan.TicksPerMillisecond;
-        long segTimeEndMilli = long.Parse( segRaw.SegTimeEnd ) * TimeSpan.TicksPerMillisecond;
+        if( segRaw == null ) {
+            return;
+        }
+
+        //long segTimeBegMilli = long.Parse( segRaw.SegTimeBeg ); //* TimeSpan.TicksPerMillisecond;
+        //long segTimeEndMilli = long.Parse( segRaw.SegTimeEnd ); //* TimeSpan.TicksPerMillisecond;
         
         await this.Logic.AddScheduleEvent_Async(
             ctx: this.Data,
             dataKey: this.DataBinding,
-            startTime: WayfinderDbContext.EpochMillisecondsToDateTime( segTimeBegMilli ),
-            endTime: WayfinderDbContext.EpochMillisecondsToDateTime( segTimeEndMilli ),
+            startTime: WayfinderDbContext.EpochMillisecondsToDateTime( segRaw.SegTimeBeg ),
+            endTime: WayfinderDbContext.EpochMillisecondsToDateTime( segRaw.SegTimeEnd ),
             startPosX: 0,
             startPosY: 0,
             endPosX: 0,

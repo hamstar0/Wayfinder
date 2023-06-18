@@ -1,9 +1,30 @@
-﻿window.addEventListener(
+﻿/*export function beforeStart(options, extensions) {
+    var customScript = document.createElement( "script" );
+    customScript.setAttribute( "src", "js/components/schedule-input.js" );
+    document.head.appendChild( customScript );
+
+    var customScript = document.createElement( "script" );
+    customScript.setAttribute( "src", "js/components/schedule-input-segs.js" );
+    document.head.appendChild( customScript );
+}*/
+
+export function afterStarted( blazor ) {
+    blazor.registerCustomEventType( "onmouseenter", {
+        createEventArgs: (e) => { return {}; }
+    } );
+    blazor.registerCustomEventType( "onmouseleave", {
+        createEventArgs: (e) => { return {}; }
+    } );
+}
+
+window.addEventListener(
 	"mousemove",
 	(event) => window.CurrentMousePosition = Object.freeze( { x: event.pageX, y: event.pageY } )
 );
 
 
+
+////////////////
 
 /**
  * @param {string} url - Relative url
@@ -22,15 +43,3 @@ window.CallAJAX = function( url, dataObject, onReceive ) {
     xhttp.open( "POST", url, true );
     xhttp.send( JSON.stringify(dataObject) );
 };
-
-
-////
-
-export function afterStarted( blazor ) {
-    //.registerCustomEventType( "onmouseenter", {
-    //    createEventArgs: (e) => {}
-    //});
-    blazor.registerCustomEventType( "onmouseleave", {
-        createEventArgs: (e) => {}
-    });
-}

@@ -4,12 +4,10 @@ namespace Wayfinder.Pages.Components;
 
 
 
-public class EventHandlerArgs : EventArgs {
-}
+public class BlankEventHandlerArgs : EventArgs { }
 
 
 
-[EventHandler( "onmouseleave", typeof(EventHandlerArgs), enableStopPropagation: true, enablePreventDefault: true )]
-[EventHandler( "onmouseenter", typeof(EventHandlerArgs), enableStopPropagation: true, enablePreventDefault: true )]
-public static class EventHandlers {
-}
+[EventHandler( "onmouseleave", typeof(BlankEventHandlerArgs), enableStopPropagation: true, enablePreventDefault: true )]
+[EventHandler( "onmouseenter", typeof(BlankEventHandlerArgs), enableStopPropagation: true, enablePreventDefault: true )]
+public static class EventHandlers { }

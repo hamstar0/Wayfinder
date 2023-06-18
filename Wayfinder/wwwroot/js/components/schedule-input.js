@@ -24,42 +24,16 @@ window.ScheduleInput.GetCurrentTimelineDrawnSegment = function( timelineElement 
 ////////////////
 
 /**
- * @param {string} componentElementId - Schedule container element id.
- * @param {number} pixelsPerSecond - Scale of pixels per second of time.
- */
-window.ScheduleInput.InitializeTimelineElement = function( componentElementId, pixelsPerSecond ) {
-    const timelineElement = this.GetTimelineElementOfComponentElement( componentElementId );
-    
-    this.ZoomScheduleTimeScale( timelineElement, pixelsPerSecond );
-};
-
-
-////////////////
-
-/**
  * @param {HTMLElement} timelineElement - Schedule component's timeline element.
  * @param {number} pixelsPerSecond - Scale of pixels per second of time.
  */
 window.ScheduleInput.ZoomScheduleTimeScale = function( timelineElement, pixelsPerSecond ) {
-    let datePosition = timelineElement.getAttribute( "current-timestamp" );
-    datePosition = datePosition !== null
-        ? typeof datePosition === 'string' || datePosition instanceof String
-            ? window.parseInt(datePosition)
-            : datePosition
-        : null;
-    
-    if( datePosition === null ) {
-        datePosition = Date.now();
+    const startTimeMilli = this.GetCurrentTimestampData( timelineElement );
 
-        timelineElement.setAttribute( "current-timestamp", datePosition );
-    } else {
-        datePosition = window.parseInt( datePosition );
-    }
-
-    timelineElement.setAttribute( "current-pixels-per-second", pixelsPerSecond );
+    this.SetCurrentTimeZoomData( timelineElement, pixelsPerSecond );
     
-    this.ZoomScheduleTimeScaleWhenIf( timelineElement, datePosition, pixelsPerSecond );
- };
+    this.ZoomScheduleTimeScaleWhenIf( timelineElement, startTimeMilli, pixelsPerSecond );
+};
 
 /**
  * @param {HTMLElement} timelineElement - Schedule component's timeline element.
@@ -320,23 +294,57 @@ window.ScheduleInput.GetDaysInYear = function( year ) {
 
 /**
  * @param {HTMLElement} timelineElement - Schedule component's timeline element.
+ * @returns {number} Current timestamp in milliseconds.
+ */
+window.ScheduleInput.GetCurrentTimestampData = function( timelineElement ) {
+    const startTimeMilliRaw = timelineElement.getAttribute( "current-timestamp" );
+    if(startTimeMilliRaw !== null) {
+        return window.parseInt(startTimeMilliRaw);
+    }
+    
+    //console.error( "No initial timestamp set for schedule timeline." );
+    //return null;
+    const datePosition = Date.now();
+    timelineElement.setAttribute( "current-timestamp", datePosition );
+    return datePosition;
+};
+
+/**
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element.
+ * @returns {number} Pixels-per-second.
+ */
+window.ScheduleInput.GetCurrentTimeZoomData = function( timelineElement ) {
+    const timeScaleRaw = timelineElement.getAttribute( "current-pixels-per-second" );
+    if( timeScaleRaw !== null ) {
+        return window.parseFloat( timeScaleRaw );
+    }
+
+    //console.error( "No initial timestamp set for schedule timeline." );
+    //return null;
+    timeScale = 1 / 60;
+    timelineElement.setAttribute( "current-pixels-per-second", timeScale );
+    return timeScale;
+};
+
+/**
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element.
+ * @param {number} pixelsPerSecond - Scale of pixels per second of time.
+ */
+window.ScheduleInput.SetCurrentTimeZoomData = function( timelineElement, pixelsPerSecond ) {
+    timelineElement.setAttribute( "current-pixels-per-second", pixelsPerSecond );
+};
+
+
+////////////////
+
+/**
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element.
  * @param {number} timestamp - Time (milliseconds since epoch).
  * @returns {number} - X (left) position of timestamp within current timeline.
  */
 window.ScheduleInput.GetElementPositionOfTimestamp = function( timelineElement, timestamp ) {
-    const startTimeMilliRaw = timelineElement.getAttribute( "current-timestamp" );
-    if( startTimeMilliRaw === null ) {
-        console.error( "No initial timestamp set for schedule timeline." );
-        return null;
-    }
-    const timeScaleRaw = timelineElement.getAttribute( "current-pixels-per-second" );
-    if( timeScaleRaw === null ) {
-        console.error( "No time scale set for schedule timeline." );
-        return null;
-    }
-
-    const startTimeMilli = window.parseInt( startTimeMilliRaw );
-    const timeScale = window.parseFloat( timeScaleRaw );
+    const startTimeMilli = this.GetCurrentTimestampData( timelineElement );
+    const timeScale = this.GetCurrentTimeZoomData( timelineElement );
     const timespan = timestamp - startTimeMilli;
 
     return (timespan / 1000) * timeScale;
