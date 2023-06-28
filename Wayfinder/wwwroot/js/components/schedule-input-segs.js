@@ -17,8 +17,9 @@ window.ScheduleInput.MouseOverIntervalIds = {};
  * @returns {HTMLElement} - Timeline segment element, or null if overlap detected.
  */
 window.ScheduleInput.AddSegment = function( timelineElement, timestampStart, timestampEnd ) {
-    const minX = this.GetElementPositionOfTimestamp( timestampStart );
-    const maxX = this.GetElementPositionOfTimestamp( timestampEnd );
+    const minX = this.GetElementPositionOfTimestamp( timelineElement, timestampStart );
+    const maxX = this.GetElementPositionOfTimestamp( timelineElement, timestampEnd );
+console.log( "  AddSegment", minX, maxX );
 
     const elem = document.createElement( "div" );
     elem.classList.add( "schedule-timeline-seg" );
@@ -34,7 +35,7 @@ window.ScheduleInput.AddSegment = function( timelineElement, timestampStart, tim
  * @param {number} newTimestampStart - Begin time (milliseconds since epoch).
  */
 window.ScheduleInput.EditSegmentStart = function( timeSegmentElement, newTimestampStart ) {
-    const newMinX = this.GetElementPositionOfTimestamp( newTimestampStart );
+    const newMinX = this.GetElementPositionOfTimestamp( timeSegmentElement.parentElement, newTimestampStart );
     const oldMinX = timeSegmentElement.offsetLeft;
 
     const diff = oldMinX - newMinX;
@@ -48,7 +49,7 @@ window.ScheduleInput.EditSegmentStart = function( timeSegmentElement, newTimesta
  * @param {number} newTimestampEnd - End time (milliseconds since epoch).
  */
 window.ScheduleInput.EditSegmentEnd = function( timeSegmentElement, newTimestampEnd ) {
-    const newMaxX = this.GetElementPositionOfTimestamp( newTimestampEnd );
+    const newMaxX = this.GetElementPositionOfTimestamp( timeSegmentElement.parentElement, newTimestampEnd );
     const oldMaxX = timeSegmentElement.offsetLeft + timeSegmentElement.offsetWidth;
 
     const diff = oldMaxX - newMaxX;
@@ -69,9 +70,11 @@ window.ScheduleInput.BeginDrawingSegment = function( componentElementId ) {
 
     window.clearInterval( intervalId );
 
-    this.MouseOverIntervalIds[ componentElementId ] = window.setInterval( () => {
+    intervalId = window.setInterval( () => {
         this.DrawSegmentIf( componentElementId );
-    }, 50);
+    }, 50 );
+
+    this.MouseOverIntervalIds[ componentElementId ] = intervalId;
 };
 
 /**
@@ -87,6 +90,7 @@ window.ScheduleInput.EndDrawingSegmentIf = function( componentElementId ) {
     window.clearInterval( intervalId );
 
     if( intervalId === "" ) {
+//console.log("EndDrawingSegmentIf A", componentElementId);
         return null;
     }
 
@@ -97,13 +101,15 @@ window.ScheduleInput.EndDrawingSegmentIf = function( componentElementId ) {
     const timelineElem = this.GetTimelineElementOfComponentElement( componentElementId );
     const currSegElem = this.GetCurrentTimelineDrawnSegment( timelineElem );
     if( currSegElem == null ) {
+//console.log("EndDrawingSegmentIf B", componentElementId);
         return null;
     }
 
     const ret = this.GetLatestTimeSegment( timelineElem );
 
-    this.ResetLatestTimeSegment();
-
+    this.ResetLatestTimeSegment( timelineElem );
+    
+//console.log("EndDrawingSegmentIf C", componentElementId, ret);
     return ret;
 };
 
@@ -114,6 +120,11 @@ window.ScheduleInput.EndDrawingSegmentIf = function( componentElementId ) {
  * @param {string} componentElementId - Timeline component element id.
  */
 window.ScheduleInput.DrawSegmentIf = function( componentElementId ) {
+    if( window.CurrentMousePosition === null ) {
+        console.error( "No mouse cursor found" );
+        return;
+    }
+
     const switchElem = document.getElementById( componentElementId+"_draw_mode_toggle" );
     if( switchElem === null ) {
         console.error( "No schedule mode switch element found ("+componentElementId+"_draw_mode_toggle)" );
@@ -125,27 +136,35 @@ window.ScheduleInput.DrawSegmentIf = function( componentElementId ) {
         console.error( "No schedule timeline element found ("+componentElementId+"_timeline)" );
         return;
     }
-
-    if( window.CurrentMousePosition === null ) {
-        console.error( "No mouse cursor found" );
+    
+    if( timelineElement.hasAttribute("disabled") && timelineElement.getAttribute("disabled") == "true" ) {
+        console.log( "Disabled timeline cannot be drawn to." );
         return;
     }
 
     if( !switchElem.checked ) {
+        console.log( "Timeline for "+componentElementId+" is not in draw mode." );
+//console.log("DrawSegmentIf A", componentElementId);
+        return;
+    }
+    
+    if( timelineElement.hasAttribute("disabled") && timelineElement.getAttribute("disabled") == "true" ) {
+        console.log( "Timeline for "+componentElementId+" disabled." );
         return;
     }
 
-    if( timelineElement.getAttribute("disabled") == "true" ) {
-        return;
-    }
+    //
 
     var rect = timelineElement.getBoundingClientRect();
-    var x = window.CurrentMousePosition.x - rect.left; //x position within the element.
-    var y = window.CurrentMousePosition.y - rect.top;  //y position within the element.
-
+    var x = window.CurrentMousePosition.x - (rect.left + window.scrollX); //x position within the element.
+    var y = window.CurrentMousePosition.y - (rect.top + window.scrollY);  //y position within the element.
+    
     if( y >= 0 && y < timelineElement.clientHeight ) {
+//console.log("DrawSegmentIf C", componentElementId);
         this.DrawSegment( timelineElement, x );
     }
+//else { console.log("DrawSegmentIf D", componentElementId, y, timelineElement.clientHeight,
+//window.CurrentMousePosition, rect); }
 };
 
 
@@ -154,32 +173,29 @@ window.ScheduleInput.DrawSegmentIf = function( componentElementId ) {
  * @param {Number} relativeX - Draw position relative to timeline element.
  */
 window.ScheduleInput.DrawSegment = function( timelineElement, relativeX ) {
-    if( timelineElement.getAttribute("disabled") == "true" ) {
-        return;
-    }
-
-    //
-
     let currentDrawSegElem = this.GetCurrentTimelineDrawnSegment( timelineElement );
-    const newTimeStart = this.GetTimestampAt( relativeX - 2 );
-    const newTimeEnd = this.GetTimestampAt( relativeX + 2 );
+
+    const newStartTimestamp = this.GetTimestampOfElementPosition( timelineElement, relativeX - 2 );
+    const newEndTimestamp = this.GetTimestampOfElementPosition( timelineElement, relativeX + 2 );
 
     if( currentDrawSegElem === null ) {
-        currentDrawSegElem = this.AddSegment( timelineElement, newTimeStart, newTimeEnd );
-        currentDrawSegElem.classList.add( "schedule-timeline-seg-current" );
+        currentDrawSegElem = this.AddSegment( timelineElement, newStartTimestamp, newEndTimestamp );
+        currentDrawSegElem.classList.add( "current-timeline-draw-seg" );
 
+console.log( "DrawSegment A", relativeX, newStartTimestamp, newEndTimestamp, currentDrawSegElem );
         return;
     }
 
-    let minX = currentDrawSegElem.offsetLeft;
+    const minX = currentDrawSegElem.offsetLeft;
     if( relativeX < minX ) {
-        this.EditSegmentStart( currentDrawSegElem, newTimeStart );
+        this.EditSegmentStart( currentDrawSegElem, newStartTimestamp );
     }
 
-    let maxX = currentDrawSegElem.offsetWidth + minX;
+    const maxX = currentDrawSegElem.offsetWidth + minX;
     if( relativeX >= maxX ) {
-        this.EditSegmentEnd( currentDrawSegElem, newTimeEnd );
+        this.EditSegmentEnd( currentDrawSegElem, newEndTimestamp );
     }
+console.log( "DrawSegment B", relativeX, newStartTimestamp, newEndTimestamp, currentDrawSegElem );
 };
 
 
@@ -197,12 +213,16 @@ window.ScheduleInput.GetLatestTimeSegment = function( timelineElement ) {
         return null;
     }
 
-    const startTimeMilliRaw = timelineElement.getAttribute( "current-timestamp" );
+    const startTimeMilliRaw = timelineElement.hasAttribute("current-timestamp")
+        ? timelineElement.getAttribute("current-timestamp")
+        : null;
     if( startTimeMilliRaw === null ) {
         console.error( "No initial timestamp set for schedule input." );
         return null;
     }
-    const timeScaleRaw = timelineElement.getAttribute( "current-pixels-per-second" );
+    const timeScaleRaw = timelineElement.hasAttribute("current-pixels-per-second")
+        ? timelineElement.getAttribute("current-pixels-per-second")
+        : null;
     if( timeScaleRaw === null ) {
         console.error( "No time scale set for schedule input." );
         return null;
@@ -234,21 +254,3 @@ window.ScheduleInput.ResetLatestTimeSegment = function( timelineElement ) {
 
     currentDrawSegElem.classList.remove( "schedule-timeline-seg-current" );
 };
-
-
-////
-
-/*window.ScheduleInput.SubmitCurrentTimeSegment = function() {
-    const timelineElement = document.getElementById(componentElementId + "_timeline");
-
-    if(timelineElement.getAttribute("disabled") == "true") {
-        return;
-    }
-
-    const data = this.GetLatestTimeSegment();
-    if(data === null) {
-        return;
-    }
-
-    window.CallAJAX("api/ScheduleInput/AddTimeSeg", data, () => {});
-};*/

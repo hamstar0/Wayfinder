@@ -5,6 +5,17 @@ window.ScheduleInput = window.ScheduleInput ?? {};
 ////////////////
 
 /**
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element.
+ */
+window.ScheduleInput.InitializeComponent = function( timelineElement ) {
+    timeScale = 1 / 60;
+    this.ZoomScheduleTimeScale( timelineElement, timeScale );
+};
+
+
+////////////////
+
+/**
  * @param {string} componentElementId - Schedule component's id.
  * @returns {HTMLElement} - Timeline elment of component.
  */
@@ -17,7 +28,7 @@ window.ScheduleInput.GetTimelineElementOfComponentElement = function( componentE
  * @returns {HTMLElement} - Currently drawn segment (`null` if none).
  */
 window.ScheduleInput.GetCurrentTimelineDrawnSegment = function( timelineElement ) {
-    return timelineElement.querySelector( ".current_timeline_draw_seg" );
+    return timelineElement.querySelector( ".current-timeline-draw-seg" );
 };
 
 
@@ -297,8 +308,10 @@ window.ScheduleInput.GetDaysInYear = function( year ) {
  * @returns {number} Current timestamp in milliseconds.
  */
 window.ScheduleInput.GetCurrentTimestampData = function( timelineElement ) {
-    const startTimeMilliRaw = timelineElement.getAttribute( "current-timestamp" );
-    if(startTimeMilliRaw !== null) {
+    const startTimeMilliRaw = timelineElement.hasAttribute("current-timestamp")
+        ? timelineElement.getAttribute("current-timestamp")
+        : null;
+    if( startTimeMilliRaw !== null ) {
         return window.parseInt(startTimeMilliRaw);
     }
     
@@ -315,15 +328,12 @@ window.ScheduleInput.GetCurrentTimestampData = function( timelineElement ) {
  */
 window.ScheduleInput.GetCurrentTimeZoomData = function( timelineElement ) {
     const timeScaleRaw = timelineElement.getAttribute( "current-pixels-per-second" );
-    if( timeScaleRaw !== null ) {
-        return window.parseFloat( timeScaleRaw );
+    if( timeScaleRaw == null ) {
+        console.error( "No initial timestamp set for schedule timeline." );
+        return null;
     }
 
-    //console.error( "No initial timestamp set for schedule timeline." );
-    //return null;
-    timeScale = 1 / 60;
-    timelineElement.setAttribute( "current-pixels-per-second", timeScale );
-    return timeScale;
+    return window.parseFloat(timeScaleRaw);
 };
 
 /**
@@ -343,11 +353,28 @@ window.ScheduleInput.SetCurrentTimeZoomData = function( timelineElement, pixelsP
  * @returns {number} - X (left) position of timestamp within current timeline.
  */
 window.ScheduleInput.GetElementPositionOfTimestamp = function( timelineElement, timestamp ) {
-    const startTimeMilli = this.GetCurrentTimestampData( timelineElement );
-    const timeScale = this.GetCurrentTimeZoomData( timelineElement );
-    const timespan = timestamp - startTimeMilli;
+    const startTimestamp = this.GetCurrentTimestampData( timelineElement );
+    const timeZoom = this.GetCurrentTimeZoomData(timelineElement);
 
-    return (timespan / 1000) * timeScale;
+    const milliSinceStart = timestamp - startTimestamp;
+    const secondsSinceStart = milliSinceStart / 1000;
+
+    return Math.round( secondsSinceStart * timeZoom );
+};
+
+/**
+ * @param {HTMLElement} timelineElement - Schedule component's timeline element.
+ * @param {number} relativeX - X (left) position of timestamp within current timeline.
+ * @returns {number} - Time (milliseconds since epoch).
+ */
+window.ScheduleInput.GetTimestampOfElementPosition = function(timelineElement, relativeX ) {
+    const startTimestamp = this.GetCurrentTimestampData( timelineElement );
+    const timeZoom = this.GetCurrentTimeZoomData( timelineElement);
+
+    const secondsSinceStart = relativeX / timeZoom;
+    const milliSinceStart = secondsSinceStart * 1000;
+
+    return startTimestamp + Math.round( milliSinceStart );
 };
 
 
@@ -358,7 +385,7 @@ window.ScheduleInput.GetElementPositionOfTimestamp = function( timelineElement, 
  * @param {Array<Array<number>>} timelineEvents - Time segments.
  */
 window.ScheduleInput.PopulateTimelineEvents = function( componentElementId, timelineEvents ) {
-    const timelineElem = this.GetTimelineElementOfComponentElement(componentElementId);
+    const timelineElem = this.GetTimelineElementOfComponentElement( componentElementId );
 
     timelineElem.innerHTML = "";
 

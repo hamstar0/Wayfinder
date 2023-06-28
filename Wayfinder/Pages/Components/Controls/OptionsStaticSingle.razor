@@ -10,7 +10,7 @@
                     name='@($"{this.ElementID}_any")'
                     class="btn btn-primary"
                     disabled=@this.Disabled
-                    @onchange=@( async e => await Task.Run(() => this.CurrentOptions = value) )>
+                    @onchange=@( async e => await this.SetCurrentOption(value) )>
             <label for='@($"{this.ElementID}_{value}_any")'>@label</label>
         }
     }
@@ -56,11 +56,11 @@
 
     ////////////////
 
-    private async void OnChangedOne( string choice ) {
+    public async Task SetCurrentOption( string choice ) {
         if( this.CurrentOptions != choice ) {
             await this.CurrentOptionsChanged.InvokeAsync( choice );
-        }
 
-        this.CurrentOptions = choice;
+            this._CurrentOptions = choice;
+        }
     }
 }

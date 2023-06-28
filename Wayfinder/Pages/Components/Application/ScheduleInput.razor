@@ -87,10 +87,15 @@
 
     protected override async Task OnAfterRenderAsync( bool firstRender ) {
         if( this.CurrentSchedule is null ) {
-            this.CurrentSchedule = await this.Logic.GetOrInitSchedule_Async( this.Data, this.DataBinding );
+            this._CurrentScheduleRaw = await this.Logic.GetOrInitSchedule_Async( this.Data, this.DataBinding );
+
+            await JS.InvokeVoidAsync(
+                "ScheduleInput.InitializeComponent",
+                this.TimelineElement
+            );
         }
 
-        if( this.CurrentSchedule.Events is not null && this.CurrentSchedule.Events.Count > 0 ) {
+        if( this.CurrentSchedule?.Events is not null && this.CurrentSchedule.Events.Count > 0 ) {
             await JS.InvokeVoidAsync(
                 "ScheduleInput.PopulateTimelineEvents",
                 this.ElementID,

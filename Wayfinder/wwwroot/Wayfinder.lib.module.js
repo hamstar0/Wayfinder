@@ -14,8 +14,42 @@ export function afterStarted( blazor ) {
     } );
     blazor.registerCustomEventType( "onmouseleave", {
         createEventArgs: (e) => { return {}; }
-    } );
+    });
+
+    //
+
+    /*let debugMouse = document.createElement( "div" );
+    debugMouse.setAttribute( "style", "position: absolute; width: 16px; height: 16px; background-color: red; opacity: 50%;" );
+    let debugPanel = document.createElement( "div" );
+    debugPanel.setAttribute( "style", "position: absolute; width: 16px; height: 16px; background-color: blue; opacity: 50%;" );
+
+    document.body.appendChild( debugMouse );
+    document.body.appendChild( debugPanel );
+
+    const myfunc = function() {
+        if( window.CurrentMousePosition != null ) {
+            debugMouse.style.left = (window.CurrentMousePosition.x + 4) + "px";
+            debugMouse.style.top = (window.CurrentMousePosition.y + 4) + "px";
+        }
+
+        const schedComp = document.querySelector( ".schedule-component" );
+
+        if( schedComp != null ) {
+            const rect = schedComp.getBoundingClientRect();
+
+            debugPanel.style.left = (rect.left + window.scrollX) + "px";
+            debugPanel.style.top = (rect.top + window.scrollY) + "px";
+            debugPanel.style.width = (rect.width) + "px";
+            debugPanel.style.height = (rect.height) + "px";
+        } else {
+            console.log( "No schedule component?" );
+        }
+
+        window.setInterval(myfunc, 50);
+    };
+    myfunc();*/
 }
+
 
 window.addEventListener(
 	"mousemove",
